@@ -119,14 +119,14 @@ The library includes a complete `NodeBluetoothAdapter` that works with Node.js, 
 #### Installation
 
 ```bash
-npm install react-mxw01-printer @abandonware/noble canvas
+npm install react-mxw01-printer @stoprocent/noble canvas
 # or
-bun add react-mxw01-printer @abandonware/noble canvas
+bun add react-mxw01-printer @stoprocent/noble canvas
 ```
 
 **Required dependencies for Node.js:**
 
-- `@abandonware/noble` - Native Bluetooth access
+- `@stoprocent/noble` - Native Bluetooth access
 - `canvas` - Image generation (or use your own image source)
 
 #### Basic Usage
@@ -198,7 +198,7 @@ See `examples/nodejs-example.ts` for a fully working example with:
 The same code works with Bun! No changes needed:
 
 ```bash
-bun add react-mxw01-printer @abandonware/noble canvas
+bun add react-mxw01-printer @stoprocent/noble canvas
 bun run examples/nodejs-example.ts
 ```
 

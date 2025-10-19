@@ -1,5 +1,5 @@
 // Node.js Bluetooth adapter using Noble
-// Requires: @abandonware/noble
+// Requires: @stoprocent/noble
 
 import type {
   BluetoothAdapter,
@@ -83,7 +83,7 @@ class NobleCharacteristicWrapper implements PrinterBluetoothCharacteristic {
  * const printer = new ThermalPrinterClient(adapter);
  * ```
  *
- * @requires @abandonware/noble
+ * @requires @stoprocent/noble
  */
 export class NodeBluetoothAdapter implements BluetoothAdapter {
   private noble: any = null;
@@ -97,10 +97,10 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
   constructor() {
     try {
       // Dynamic import to avoid issues if noble is not installed
-      this.noble = require("@abandonware/noble");
+      this.noble = require("@stoprocent/noble");
     } catch (error) {
       throw new Error(
-        "Noble is not installed. Please run: npm install @abandonware/noble"
+        "Noble is not installed. Please run: npm install @stoprocent/noble"
       );
     }
   }

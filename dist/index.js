@@ -1042,10 +1042,10 @@ class lt {
   characteristics = {};
   constructor() {
     try {
-      this.noble = require("@abandonware/noble");
+      this.noble = require("@stoprocent/noble");
     } catch {
       throw new Error(
-        "Noble is not installed. Please run: npm install @abandonware/noble"
+        "Noble is not installed. Please run: npm install @stoprocent/noble"
       );
     }
   }

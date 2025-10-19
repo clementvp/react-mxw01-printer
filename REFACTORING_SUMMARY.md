@@ -175,7 +175,7 @@ Use `NodeBluetoothAdapter` in your TUI application - full example in `examples/n
 
 **Optional Dependencies** (for Node.js):
 
-- `@abandonware/noble` - Bluetooth access
+- `@stoprocent/noble` - Bluetooth access
 - `canvas` - Image generation
 
 ### Type Safety

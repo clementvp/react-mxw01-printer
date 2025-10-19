@@ -106,7 +106,7 @@ export declare class MXW01Printer {
  * const printer = new ThermalPrinterClient(adapter);
  * ```
  *
- * @requires @abandonware/noble
+ * @requires @stoprocent/noble
  */
 export declare class NodeBluetoothAdapter implements BluetoothAdapter {
     private noble;

@@ -2,9 +2,9 @@
  * Example: Using react-mxw01-printer in Node.js with Bun
  *
  * Installation:
- *   npm install react-mxw01-printer @abandonware/noble canvas
+ *   npm install react-mxw01-printer @stoprocent/noble canvas
  *   or
- *   bun add react-mxw01-printer @abandonware/noble canvas
+ *   bun add react-mxw01-printer @stoprocent/noble canvas
  *
  * Run:
  *   node --loader ts-node/esm examples/nodejs-example.ts

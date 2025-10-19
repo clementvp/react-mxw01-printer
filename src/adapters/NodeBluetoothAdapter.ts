@@ -126,24 +126,16 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       }, 30000);
 
       const onDiscover = (peripheral: any) => {
-        const services = peripheral.advertisement.serviceUuids || [];
-        const hasService = services.some(
-          (uuid: string) =>
-            uuid.toLowerCase().includes(PRINTER_SERVICE_UUID) ||
-            uuid.toLowerCase().replace(/-/g, "").includes(PRINTER_SERVICE_UUID)
-        );
+        // If Noble discovers it with our filter, it's our printer
+        this.noble.stopScanning();
+        clearTimeout(timeout);
+        this.peripheral = peripheral;
+        this.noble.removeListener("discover", onDiscover);
 
-        if (hasService) {
-          this.noble.stopScanning();
-          clearTimeout(timeout);
-          this.peripheral = peripheral;
-          this.noble.removeListener("discover", onDiscover);
-
-          resolve({
-            id: peripheral.id || peripheral.uuid,
-            name: peripheral.advertisement.localName || "MXW01 Printer",
-          });
-        }
+        resolve({
+          id: peripheral.id || peripheral.uuid,
+          name: peripheral.advertisement.localName || "MXW01 Printer",
+        });
       };
 
       this.noble.on("discover", onDiscover);
@@ -182,35 +174,20 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       await this.peripheral.connectAsync();
       console.log("Connected to peripheral");
 
-      // Discover services and characteristics
+      // Discover all services and characteristics
       const { characteristics } =
-        await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
-          [PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT],
-          [CONTROL_CHAR_UUID, NOTIFY_CHAR_UUID, DATA_CHAR_UUID]
-        );
+        await this.peripheral.discoverAllServicesAndCharacteristicsAsync();
 
       console.log(`Found ${characteristics.length} characteristics`);
 
-      // Find the required characteristics by UUID
-      for (const char of characteristics) {
-        const uuid = char.uuid.toLowerCase().replace(/-/g, "");
-        const controlUuid = CONTROL_CHAR_UUID.toLowerCase().replace(/-/g, "");
-        const notifyUuid = NOTIFY_CHAR_UUID.toLowerCase().replace(/-/g, "");
-        const dataUuid = DATA_CHAR_UUID.toLowerCase().replace(/-/g, "");
+      // Find the required characteristics by short UUID (Noble uses short format)
+      this.characteristics.control = characteristics.find((c: any) => c.uuid === 'ae01');
+      this.characteristics.notify = characteristics.find((c: any) => c.uuid === 'ae02');
+      this.characteristics.data = characteristics.find((c: any) => c.uuid === 'ae03');
 
-        if (uuid === controlUuid) {
-          this.characteristics.control = char;
-          console.log("Found control characteristic");
-        }
-        if (uuid === notifyUuid) {
-          this.characteristics.notify = char;
-          console.log("Found notify characteristic");
-        }
-        if (uuid === dataUuid) {
-          this.characteristics.data = char;
-          console.log("Found data characteristic");
-        }
-      }
+      console.log('Control:', this.characteristics.control ? '✅' : '❌');
+      console.log('Notify:', this.characteristics.notify ? '✅' : '❌');
+      console.log('Data:', this.characteristics.data ? '✅' : '❌');
 
       // Verify all required characteristics are found
       if (

@@ -1,27 +1,21 @@
 // Web Bluetooth API adapter for browser environments
 
+import { BLUETOOTH_UUIDS } from "../utils/bluetooth";
+import { BaseCharacteristicWrapper } from "./BaseCharacteristicWrapper";
 import type {
   BluetoothAdapter,
   BluetoothDevice as PrinterBluetoothDevice,
   BluetoothConnection,
   BluetoothServiceInfo,
-  BluetoothCharacteristic as PrinterBluetoothCharacteristic,
 } from "../core/types";
-
-// Bluetooth service UUIDs
-const PRINTER_SERVICE_UUID = "0000ae30-0000-1000-8000-00805f9b34fb";
-const PRINTER_SERVICE_UUID_ALT = "0000af30-0000-1000-8000-00805f9b34fb"; // macOS alternate UUID
-const CONTROL_CHAR_UUID = "0000ae01-0000-1000-8000-00805f9b34fb";
-const NOTIFY_CHAR_UUID = "0000ae02-0000-1000-8000-00805f9b34fb";
-const DATA_CHAR_UUID = "0000ae03-0000-1000-8000-00805f9b34fb";
 
 /**
  * Wrapper for Web Bluetooth API characteristic to match our interface
  */
-class WebBluetoothCharacteristicWrapper
-  implements PrinterBluetoothCharacteristic
-{
-  constructor(private characteristic: BluetoothRemoteGATTCharacteristic) {}
+class WebBluetoothCharacteristicWrapper extends BaseCharacteristicWrapper {
+  constructor(private characteristic: BluetoothRemoteGATTCharacteristic) {
+    super();
+  }
 
   async writeValueWithoutResponse(data: BufferSource): Promise<void> {
     await this.characteristic.writeValueWithoutResponse(data);
@@ -74,10 +68,13 @@ export class WebBluetoothAdapter implements BluetoothAdapter {
       // Request Bluetooth device with support for both standard and macOS UUIDs
       this.device = await navigator.bluetooth.requestDevice({
         filters: [
-          { services: [PRINTER_SERVICE_UUID] },
-          { services: [PRINTER_SERVICE_UUID_ALT] },
+          { services: [BLUETOOTH_UUIDS.PRINTER_SERVICE] },
+          { services: [BLUETOOTH_UUIDS.PRINTER_SERVICE_ALT] },
         ],
-        optionalServices: [PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT],
+        optionalServices: [
+          BLUETOOTH_UUIDS.PRINTER_SERVICE,
+          BLUETOOTH_UUIDS.PRINTER_SERVICE_ALT,
+        ],
       });
 
       return {
@@ -115,17 +112,21 @@ export class WebBluetoothAdapter implements BluetoothAdapter {
       // Access printer service - try standard UUID first, then macOS alternate
       let service: BluetoothRemoteGATTService;
       try {
-        service = await this.server.getPrimaryService(PRINTER_SERVICE_UUID);
+        service = await this.server.getPrimaryService(
+          BLUETOOTH_UUIDS.PRINTER_SERVICE
+        );
       } catch (error) {
         console.log("Trying alternate UUID for macOS compatibility...");
-        service = await this.server.getPrimaryService(PRINTER_SERVICE_UUID_ALT);
+        service = await this.server.getPrimaryService(
+          BLUETOOTH_UUIDS.PRINTER_SERVICE_ALT
+        );
       }
 
       // Get characteristics
       const [controlChar, notifyChar, dataChar] = await Promise.all([
-        service.getCharacteristic(CONTROL_CHAR_UUID),
-        service.getCharacteristic(NOTIFY_CHAR_UUID),
-        service.getCharacteristic(DATA_CHAR_UUID),
+        service.getCharacteristic(BLUETOOTH_UUIDS.CONTROL),
+        service.getCharacteristic(BLUETOOTH_UUIDS.NOTIFY),
+        service.getCharacteristic(BLUETOOTH_UUIDS.DATA),
       ]);
 
       return {

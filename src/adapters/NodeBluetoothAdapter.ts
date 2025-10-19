@@ -1,32 +1,23 @@
 // Node.js Bluetooth adapter using Noble
 // Requires: @stoprocent/noble
 
+import { BLUETOOTH_UUIDS } from "../utils/bluetooth";
+import { BaseCharacteristicWrapper } from "./BaseCharacteristicWrapper";
 import type {
   BluetoothAdapter,
   BluetoothDevice as PrinterBluetoothDevice,
   BluetoothConnection,
   BluetoothServiceInfo,
-  BluetoothCharacteristic as PrinterBluetoothCharacteristic,
 } from "../core/types";
-
-// Bluetooth service UUIDs for MXW01 printer
-const PRINTER_SERVICE_UUID = "0000ae30-0000-1000-8000-00805f9b34fb";
-const PRINTER_SERVICE_UUID_ALT = "0000af30-0000-1000-8000-00805f9b34fb";
-
-// Characteristic UUIDs (Noble uses short format: 'ae01', 'ae02', 'ae03')
-// Full UUIDs for reference:
-// - Control: 0000ae01-0000-1000-8000-00805f9b34fb
-// - Notify:  0000ae02-0000-1000-8000-00805f9b34fb
-// - Data:    0000ae03-0000-1000-8000-00805f9b34fb
 
 /**
  * Wrapper for Noble characteristic to match our interface
  */
-class NobleCharacteristicWrapper implements PrinterBluetoothCharacteristic {
+class NobleCharacteristicWrapper extends BaseCharacteristicWrapper {
   private characteristic: any;
-  private dataListeners: Map<Function, Function> = new Map();
 
   constructor(characteristic: any) {
+    super();
     this.characteristic = characteristic;
   }
 
@@ -145,7 +136,10 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
 
       const startScanning = () => {
         console.log("Scanning for MXW01 printer...");
-        this.noble.startScanning([PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT], false);
+        this.noble.startScanning(
+          [BLUETOOTH_UUIDS.PRINTER_SERVICE, BLUETOOTH_UUIDS.PRINTER_SERVICE_ALT],
+          false
+        );
       };
 
       if (this.noble.state === "poweredOn") {
@@ -184,13 +178,19 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       console.log(`Found ${characteristics.length} characteristics`);
 
       // Find the required characteristics by short UUID (Noble uses short format)
-      this.characteristics.control = characteristics.find((c: any) => c.uuid === 'ae01');
-      this.characteristics.notify = characteristics.find((c: any) => c.uuid === 'ae02');
-      this.characteristics.data = characteristics.find((c: any) => c.uuid === 'ae03');
+      this.characteristics.control = characteristics.find(
+        (c: any) => c.uuid === BLUETOOTH_UUIDS.CONTROL_SHORT
+      );
+      this.characteristics.notify = characteristics.find(
+        (c: any) => c.uuid === BLUETOOTH_UUIDS.NOTIFY_SHORT
+      );
+      this.characteristics.data = characteristics.find(
+        (c: any) => c.uuid === BLUETOOTH_UUIDS.DATA_SHORT
+      );
 
-      console.log('Control:', this.characteristics.control ? '✅' : '❌');
-      console.log('Notify:', this.characteristics.notify ? '✅' : '❌');
-      console.log('Data:', this.characteristics.data ? '✅' : '❌');
+      console.log("Control:", this.characteristics.control ? "✅" : "❌");
+      console.log("Notify:", this.characteristics.notify ? "✅" : "❌");
+      console.log("Data:", this.characteristics.data ? "✅" : "❌");
 
       // Verify all required characteristics are found
       if (

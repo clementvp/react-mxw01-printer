@@ -637,6 +637,38 @@ The library is organized into layers:
 └─────────────────────────────────────┘
 ```
 
+### Project Structure
+
+```
+src/
+├── utils/
+│   ├── helpers.ts              # Utility functions (crc8, delay)
+│   └── bluetooth.ts            # Bluetooth constants
+│
+├── services/
+│   ├── protocol.ts             # MXW01 protocol (commands)
+│   ├── printerState.ts         # State management
+│   ├── printer.ts              # MXW01Printer class
+│   ├── dithering.ts            # Dithering algorithms
+│   ├── imageTransforms.ts      # Image transformations
+│   └── imageProcessor.ts       # Image processing
+│
+├── core/
+│   ├── EventEmitter.ts         # Event system
+│   ├── ClientState.ts          # Centralized state
+│   ├── PrintJob.ts             # Print job encapsulation
+│   ├── ThermalPrinterClient.ts # Main client
+│   └── types.ts                # TypeScript types
+│
+├── adapters/
+│   ├── BaseCharacteristicWrapper.ts # Base class
+│   ├── WebBluetoothAdapter.ts       # Browser adapter
+│   └── NodeBluetoothAdapter.ts      # Node.js adapter
+│
+└── react/
+    └── useThermalPrinter.ts    # React hook
+```
+
 ### Creating Custom Adapters
 
 You can create custom Bluetooth adapters for different platforms:

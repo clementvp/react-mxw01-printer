@@ -1,9 +1,69 @@
-// React hook for thermal printer - wrapper around ThermalPrinterClient
+// React hook for thermal printer - optimized with useReducer
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useReducer } from "react";
 import { ThermalPrinterClient } from "../core/ThermalPrinterClient";
 import { WebBluetoothAdapter } from "../adapters/WebBluetoothAdapter";
 import type { PrinterState, DitherMethod } from "../core/types";
+
+/**
+ * Hook state interface
+ */
+interface HookState {
+  isConnected: boolean;
+  isPrinting: boolean;
+  printerState: PrinterState | null;
+  statusMessage: string;
+  ditherMethod: DitherMethod;
+  printIntensity: number;
+}
+
+/**
+ * Hook state actions
+ */
+type HookAction =
+  | { type: "SET_CONNECTED"; payload: boolean }
+  | { type: "SET_PRINTING"; payload: boolean }
+  | { type: "SET_PRINTER_STATE"; payload: PrinterState | null }
+  | { type: "SET_STATUS"; payload: string }
+  | { type: "SET_DITHER"; payload: DitherMethod }
+  | { type: "SET_INTENSITY"; payload: number }
+  | { type: "SYNC_CLIENT"; payload: Partial<HookState> };
+
+/**
+ * State reducer
+ */
+function hookReducer(state: HookState, action: HookAction): HookState {
+  switch (action.type) {
+    case "SET_CONNECTED":
+      return { ...state, isConnected: action.payload };
+    case "SET_PRINTING":
+      return { ...state, isPrinting: action.payload };
+    case "SET_PRINTER_STATE":
+      return { ...state, printerState: action.payload };
+    case "SET_STATUS":
+      return { ...state, statusMessage: action.payload };
+    case "SET_DITHER":
+      return { ...state, ditherMethod: action.payload };
+    case "SET_INTENSITY":
+      return { ...state, printIntensity: action.payload };
+    case "SYNC_CLIENT":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+}
+
+/**
+ * Initial state
+ */
+const initialState: HookState = {
+  isConnected: false,
+  isPrinting: false,
+  printerState: null,
+  statusMessage: "Ready to connect printer",
+  ditherMethod: "steinberg",
+  printIntensity: 0x5d,
+};
 
 export interface ThermalPrinterHook {
   isConnected: boolean;
@@ -29,48 +89,47 @@ export interface ThermalPrinterHook {
 
 /**
  * React hook for thermal printer
- * Provides a React-friendly interface to the ThermalPrinterClient
+ * Optimized with useReducer and single useEffect
  */
 export function useThermalPrinter(): ThermalPrinterHook {
   const clientRef = useRef<ThermalPrinterClient | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
-  const [printerState, setPrinterState] = useState<PrinterState | null>(null);
-  const [statusMessage, setStatusMessage] = useState(
-    "Ready to connect printer"
-  );
-  const [ditherMethod, setDitherMethod] = useState<DitherMethod>("steinberg");
-  const [printIntensity, setPrintIntensity] = useState(0x5d);
+  const [state, dispatch] = useReducer(hookReducer, initialState);
 
-  // Initialize client on mount
+  // Initialize client and setup event listeners
   useEffect(() => {
     try {
       const adapter = new WebBluetoothAdapter();
-      clientRef.current = new ThermalPrinterClient(adapter);
+      const client = new ThermalPrinterClient(adapter);
+      clientRef.current = client;
 
-      // Subscribe to client events
-      const unsubscribeConnected = clientRef.current.on("connected", () => {
-        setIsConnected(true);
+      // Subscribe to all client events
+      const unsubscribeConnected = client.on("connected", () => {
+        dispatch({ type: "SET_CONNECTED", payload: true });
       });
 
-      const unsubscribeDisconnected = clientRef.current.on(
-        "disconnected",
-        () => {
-          setIsConnected(false);
-          setPrinterState(null);
-        }
-      );
+      const unsubscribeDisconnected = client.on("disconnected", () => {
+        dispatch({ type: "SET_CONNECTED", payload: false });
+        dispatch({ type: "SET_PRINTER_STATE", payload: null });
+      });
 
-      const unsubscribeStateChange = clientRef.current.on(
-        "stateChange",
-        (event) => {
-          setPrinterState(event.state);
-        }
-      );
+      const unsubscribeStateChange = client.on("stateChange", (event) => {
+        dispatch({ type: "SET_PRINTER_STATE", payload: event.state });
+      });
 
-      const unsubscribeError = clientRef.current.on("error", (event) => {
+      const unsubscribeError = client.on("error", (event) => {
         console.error("Printer error:", event.error);
       });
+
+      // Sync state from client periodically
+      const syncInterval = setInterval(() => {
+        dispatch({
+          type: "SYNC_CLIENT",
+          payload: {
+            statusMessage: client.statusMessage,
+            isPrinting: client.isPrinting,
+          },
+        });
+      }, 100);
 
       // Cleanup on unmount
       return () => {
@@ -78,34 +137,16 @@ export function useThermalPrinter(): ThermalPrinterHook {
         unsubscribeDisconnected();
         unsubscribeStateChange();
         unsubscribeError();
-        clientRef.current?.dispose();
+        clearInterval(syncInterval);
+        client.dispose();
       };
     } catch (error) {
       console.error("Failed to initialize printer client:", error);
-      setStatusMessage(`Initialization error: ${(error as Error).message}`);
+      dispatch({
+        type: "SET_STATUS",
+        payload: `Initialization error: ${(error as Error).message}`,
+      });
     }
-  }, []);
-
-  // Sync state from client
-  useEffect(() => {
-    if (clientRef.current) {
-      setIsConnected(clientRef.current.isConnected);
-      setIsPrinting(clientRef.current.isPrinting);
-      setPrinterState(clientRef.current.printerState);
-      setStatusMessage(clientRef.current.statusMessage);
-    }
-  }, []);
-
-  // Update status message from client periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (clientRef.current) {
-        setStatusMessage(clientRef.current.statusMessage);
-        setIsPrinting(clientRef.current.isPrinting);
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
   }, []);
 
   const connectPrinter = useCallback(async () => {
@@ -115,10 +156,12 @@ export function useThermalPrinter(): ThermalPrinterHook {
 
     try {
       await clientRef.current.connect();
-      setIsConnected(true);
-      setStatusMessage(clientRef.current.statusMessage);
+      dispatch({ type: "SET_STATUS", payload: clientRef.current.statusMessage });
     } catch (error) {
-      setStatusMessage(`Connection error: ${(error as Error).message}`);
+      dispatch({
+        type: "SET_STATUS",
+        payload: `Connection error: ${(error as Error).message}`,
+      });
       throw error;
     }
   }, []);
@@ -128,12 +171,12 @@ export function useThermalPrinter(): ThermalPrinterHook {
       return null;
     }
 
-    const state = await clientRef.current.getStatus();
-    if (state) {
-      setPrinterState(state);
+    const printerState = await clientRef.current.getStatus();
+    if (printerState) {
+      dispatch({ type: "SET_PRINTER_STATE", payload: printerState });
     }
-    setStatusMessage(clientRef.current.statusMessage);
-    return state;
+    dispatch({ type: "SET_STATUS", payload: clientRef.current.statusMessage });
+    return printerState;
   }, []);
 
   const printCanvas = useCallback(
@@ -150,25 +193,25 @@ export function useThermalPrinter(): ThermalPrinterHook {
       }
 
       try {
-        setIsPrinting(true);
+        dispatch({ type: "SET_PRINTING", payload: true });
 
-        // Get canvas image data
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           throw new Error("Failed to get canvas context");
         }
 
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        // Print using client
         await clientRef.current.print(imageData, options);
 
-        setStatusMessage(clientRef.current.statusMessage);
+        dispatch({ type: "SET_STATUS", payload: clientRef.current.statusMessage });
       } catch (error) {
-        setStatusMessage(`Print error: ${(error as Error).message}`);
+        dispatch({
+          type: "SET_STATUS",
+          payload: `Print error: ${(error as Error).message}`,
+        });
         throw error;
       } finally {
-        setIsPrinting(false);
+        dispatch({ type: "SET_PRINTING", payload: false });
       }
     },
     []
@@ -180,34 +223,32 @@ export function useThermalPrinter(): ThermalPrinterHook {
     }
 
     await clientRef.current.disconnect();
-    setIsConnected(false);
-    setPrinterState(null);
-    setStatusMessage(clientRef.current.statusMessage);
+    dispatch({ type: "SET_STATUS", payload: clientRef.current.statusMessage });
   }, []);
 
-  const handleSetDitherMethod = useCallback((method: DitherMethod) => {
-    setDitherMethod(method);
+  const setDitherMethod = useCallback((method: DitherMethod) => {
+    dispatch({ type: "SET_DITHER", payload: method });
     clientRef.current?.setDitherMethod(method);
   }, []);
 
-  const handleSetPrintIntensity = useCallback((intensity: number) => {
-    setPrintIntensity(intensity);
+  const setPrintIntensity = useCallback((intensity: number) => {
+    dispatch({ type: "SET_INTENSITY", payload: intensity });
     clientRef.current?.setPrintIntensity(intensity);
   }, []);
 
   return {
-    isConnected,
-    isPrinting,
-    printerState,
-    statusMessage,
-    ditherMethod,
-    printIntensity,
+    isConnected: state.isConnected,
+    isPrinting: state.isPrinting,
+    printerState: state.printerState,
+    statusMessage: state.statusMessage,
+    ditherMethod: state.ditherMethod,
+    printIntensity: state.printIntensity,
     connectPrinter,
     printCanvas,
     getPrinterStatus,
     disconnect,
-    setDitherMethod: handleSetDitherMethod,
-    setPrintIntensity: handleSetPrintIntensity,
+    setDitherMethod,
+    setPrintIntensity,
   };
 }
 

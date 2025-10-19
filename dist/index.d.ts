@@ -305,31 +305,6 @@ export declare class ThermalPrinterClient {
     dispose(): void;
 }
 
-export declare interface ThermalPrinterHook {
-    isConnected: boolean;
-    isPrinting: boolean;
-    printerState: PrinterState | null;
-    statusMessage: string;
-    ditherMethod: DitherMethod;
-    printIntensity: number;
-    connectPrinter: () => Promise<void>;
-    printCanvas: (canvas: HTMLCanvasElement, options?: Partial<{
-        dither: DitherMethod;
-        brightness: number;
-        intensity: number;
-    }>) => Promise<void>;
-    getPrinterStatus: () => Promise<PrinterState | null>;
-    disconnect: () => Promise<void>;
-    setDitherMethod: (method: DitherMethod) => void;
-    setPrintIntensity: (intensity: number) => void;
-}
-
-/**
- * React hook for thermal printer
- * Optimized with useReducer and single useEffect
- */
-export declare function useThermalPrinter(): ThermalPrinterHook;
-
 /**
  * Web Bluetooth adapter for browser environments
  * Uses the Web Bluetooth API to connect to Bluetooth devices

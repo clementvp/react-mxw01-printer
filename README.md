@@ -752,3 +752,9 @@ MIT
 ## 💝 Credits
 
 Based on the MXW01 thermal printer protocol.
+The identification of the protocol and its operation would not have been possible without [dropalltables/catprinter](https://github.com/dropalltables/catprinter ).  
+Big thank you.
+
+##  🧔🏻‍♂️ Author
+
+Made with ❤️ by Clément Van Peuter

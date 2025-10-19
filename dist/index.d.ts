@@ -42,6 +42,9 @@ export declare interface BluetoothServiceInfo {
     notifyCharacteristic: BluetoothCharacteristic;
 }
 
+/**
+ * MXW01 Printer command identifiers
+ */
 export declare const Command: {
     readonly GetStatus: 161;
     readonly SetIntensity: 162;
@@ -55,8 +58,14 @@ export declare const Command: {
  */
 export declare type DitherMethod = "threshold" | "steinberg" | "bayer" | "atkinson" | "pattern";
 
+/**
+ * Dithering method type
+ */
 declare type DitherMethod_2 = "threshold" | "steinberg" | "bayer" | "atkinson" | "pattern";
 
+/**
+ * Encode a row of boolean pixels to binary format
+ */
 export declare function encode1bppRow(rowBool: boolean[]): Uint8Array;
 
 export declare interface ImageProcessorOptions {
@@ -66,6 +75,9 @@ export declare interface ImageProcessorOptions {
     brightness: number;
 }
 
+/**
+ * Image processor options
+ */
 declare interface ImageProcessorOptions_2 {
     dither: DitherMethod_2;
     rotate: 0 | 90 | 180 | 270;
@@ -75,21 +87,46 @@ declare interface ImageProcessorOptions_2 {
 
 export declare const MIN_DATA_BYTES: number;
 
+/**
+ * MXW01 Thermal Printer Controller
+ * Simplified class that delegates to protocol and state management modules
+ */
 export declare class MXW01Printer {
     private controlWrite;
     private dataWrite;
-    private printComplete;
-    private pendingResolvers;
-    state: PrinterState_2;
+    private stateManager;
     constructor(controlWrite: WriteFunction, dataWrite: WriteFunction);
+    /**
+     * Get current printer state
+     */
+    get state(): PrinterState_2;
+    /**
+     * Process incoming notification from printer
+     */
     notify(message: Uint8Array): void;
-    makeCommand(command: number, payload: Uint8Array): Uint8Array;
-    waitForNotification(cmdId: number, timeoutMs?: number): Promise<Uint8Array>;
+    /**
+     * Set print intensity (darkness)
+     */
     setIntensity(intensity?: number): Promise<void>;
+    /**
+     * Request current printer status
+     */
     requestStatus(): Promise<Uint8Array>;
+    /**
+     * Send print request with number of lines
+     */
     printRequest(lines: number, mode?: number): Promise<Uint8Array>;
+    /**
+     * Flush data to printer
+     */
     flushData(): Promise<void>;
+    /**
+     * Send data chunks to printer
+     */
     sendDataChunks(data: Uint8Array, chunkSize?: number): Promise<void>;
+    /**
+     * Wait for print completion
+     */
     waitForPrintComplete(timeoutMs?: number): Promise<void>;
 }
 
@@ -129,6 +166,9 @@ export declare class NodeBluetoothAdapter implements BluetoothAdapter {
     connect(device: BluetoothDevice_2): Promise<BluetoothConnection & BluetoothServiceInfo>;
 }
 
+/**
+ * Prepare image data buffer with padding
+ */
 export declare function prepareImageDataBuffer(imageRowsBool: boolean[][]): Uint8Array;
 
 export declare const PRINTER_WIDTH = 384;
@@ -179,6 +219,9 @@ export declare interface PrinterState {
     overheat: boolean;
 }
 
+/**
+ * Printer state interface
+ */
 declare interface PrinterState_2 {
     printing: boolean;
     paper_jam: boolean;
@@ -197,6 +240,9 @@ export declare interface PrintOptions extends Partial<ImageProcessorOptions> {
 
 /**
  * Process an image for thermal printer
+ * @param imageData Source image data
+ * @param options Processing options
+ * @returns Processed image data and binary rows for printing
  */
 export declare function processImageForPrinter(imageData: ImageData, options: ImageProcessorOptions_2): {
     processedData: Uint32Array;
@@ -214,13 +260,8 @@ export declare class ThermalPrinterClient {
     private printer;
     private connection;
     private device;
-    private eventListeners;
-    private _isConnected;
-    private _isPrinting;
-    private _printerState;
-    private _statusMessage;
-    private _ditherMethod;
-    private _printIntensity;
+    private eventEmitter;
+    private state;
     constructor(adapter: BluetoothAdapter);
     get isConnected(): boolean;
     get isPrinting(): boolean;
@@ -231,15 +272,11 @@ export declare class ThermalPrinterClient {
     setDitherMethod(method: ImageProcessorOptions["dither"]): void;
     setPrintIntensity(intensity: number): void;
     /**
-     * Event emitter
-     */
-    private emit;
-    /**
      * Subscribe to events
      */
     on<T extends PrinterEventType>(eventType: T, listener: PrinterEventListener<T>): () => void;
     /**
-     * Update status message and emit stateChange if printer state changed
+     * Update status message and emit state change if needed
      */
     private updateStatus;
     /**
@@ -247,19 +284,17 @@ export declare class ThermalPrinterClient {
      */
     connect(): Promise<void>;
     /**
+     * Setup notification listener
+     */
+    private setupNotifications;
+    /**
      * Get current printer status
      */
     getStatus(): Promise<PrinterState | null>;
     /**
      * Print from image data
-     * Works with Canvas ImageData or any compatible ImageData structure
      */
     print(imageData: PrinterImageData, options?: PrintOptions): Promise<void>;
-    /**
-     * Scale image data to target dimensions
-     * Simple nearest-neighbor scaling
-     */
-    private scaleImageData;
     /**
      * Disconnect from printer
      */
@@ -291,7 +326,7 @@ export declare interface ThermalPrinterHook {
 
 /**
  * React hook for thermal printer
- * Provides a React-friendly interface to the ThermalPrinterClient
+ * Optimized with useReducer and single useEffect
  */
 export declare function useThermalPrinter(): ThermalPrinterHook;
 

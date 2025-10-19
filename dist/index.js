@@ -1050,10 +1050,11 @@ class lt {
     }
   }
   /**
-   * Check if Bluetooth is available and powered on
+   * Check if Bluetooth is available (Noble is loaded)
+   * The powered on state is checked during requestDevice()
    */
   isAvailable() {
-    return this.noble && this.noble.state === "poweredOn";
+    return this.noble !== null;
   }
   /**
    * Scan for and request a Bluetooth printer device

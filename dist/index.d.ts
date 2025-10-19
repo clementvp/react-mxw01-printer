@@ -114,7 +114,8 @@ export declare class NodeBluetoothAdapter implements BluetoothAdapter {
     private characteristics;
     constructor();
     /**
-     * Check if Bluetooth is available and powered on
+     * Check if Bluetooth is available (Noble is loaded)
+     * The powered on state is checked during requestDevice()
      */
     isAvailable(): boolean;
     /**

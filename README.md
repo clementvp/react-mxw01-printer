@@ -19,21 +19,24 @@ npm install react-mxw01-printer
 ```
 
 For Bun:
-
 ```bash
 bun add react-mxw01-printer
 ```
 
-## Usage
+---
 
-### React Hook (Browser)
+## 🚀 Quick Start
 
-The easiest way to use the library in a React application:
+### React - Simple Example
+
+The easiest way to get started with React:
 
 ```tsx
 import { useThermalPrinter } from "react-mxw01-printer";
+import { useRef, useEffect } from "react";
 
 function PrinterApp() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
     isConnected,
     isPrinting,
@@ -43,9 +46,32 @@ function PrinterApp() {
     disconnect,
   } = useThermalPrinter();
 
+  // Draw content on canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // White background
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Black text
+    ctx.fillStyle = "black";
+    ctx.font = "30px Arial";
+    ctx.fillText("Hello from React!", 20, 100);
+    
+    // Draw a rectangle
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, 364, 180);
+  }, []);
+
   const handlePrint = async () => {
-    const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
-    await printCanvas(canvas, {
+    if (!canvasRef.current) return;
+    await printCanvas(canvasRef.current, {
       dither: "steinberg",
       brightness: 128,
       intensity: 93,
@@ -53,25 +79,235 @@ function PrinterApp() {
   };
 
   return (
-    <div>
-      <button onClick={connectPrinter} disabled={isConnected}>
-        Connect Printer
-      </button>
-      <button onClick={handlePrint} disabled={!isConnected || isPrinting}>
-        Print
-      </button>
-      <button onClick={disconnect} disabled={!isConnected}>
-        Disconnect
-      </button>
-      <p>{statusMessage}</p>
+    <div style={{ padding: "20px" }}>
+      <h2>Thermal Printer Demo</h2>
+      
+      {/* Canvas Preview */}
+      <canvas 
+        ref={canvasRef} 
+        width={384} 
+        height={200} 
+        style={{ 
+          border: "1px solid #ccc",
+          display: "block",
+          marginBottom: "20px"
+        }} 
+      />
+      
+      {/* Controls */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        <button onClick={connectPrinter} disabled={isConnected}>
+          Connect Printer
+        </button>
+        <button onClick={handlePrint} disabled={!isConnected || isPrinting}>
+          {isPrinting ? "Printing..." : "Print"}
+        </button>
+        <button onClick={disconnect} disabled={!isConnected}>
+          Disconnect
+        </button>
+      </div>
+      
+      {/* Status */}
+      <p style={{ color: isConnected ? "green" : "gray" }}>
+        {statusMessage}
+      </p>
     </div>
   );
 }
+
+export default PrinterApp;
 ```
 
-### Platform-Agnostic Client (Browser)
+### React - Interactive Example with Fabric.js
 
-Use the core client directly for more control:
+For more advanced drawing capabilities:
+
+```bash
+npm install react-mxw01-printer fabric
+```
+
+```tsx
+import { useThermalPrinter } from "react-mxw01-printer";
+import { useRef, useEffect, useState } from "react";
+import { Canvas as FabricCanvas } from "fabric";
+
+function FabricPrinterApp() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fabricCanvasRef = useRef<FabricCanvas | null>(null);
+  const [fabricReady, setFabricReady] = useState(false);
+  
+  const {
+    isConnected,
+    isPrinting,
+    statusMessage,
+    connectPrinter,
+    printCanvas,
+    disconnect,
+  } = useThermalPrinter();
+
+  // Initialize Fabric canvas
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const fabricCanvas = new FabricCanvas(canvasRef.current, {
+      width: 384,
+      height: 400,
+      backgroundColor: "white",
+    });
+
+    fabricCanvasRef.current = fabricCanvas;
+    setFabricReady(true);
+
+    // Cleanup
+    return () => {
+      fabricCanvas.dispose();
+    };
+  }, []);
+
+  const addText = () => {
+    if (!fabricCanvasRef.current) return;
+    
+    const text = new fabric.Text("Hello!", {
+      left: 50,
+      top: 50,
+      fontSize: 30,
+      fill: "black",
+    });
+    
+    fabricCanvasRef.current.add(text);
+  };
+
+  const addRectangle = () => {
+    if (!fabricCanvasRef.current) return;
+    
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      width: 150,
+      height: 100,
+      fill: "transparent",
+      stroke: "black",
+      strokeWidth: 2,
+    });
+    
+    fabricCanvasRef.current.add(rect);
+  };
+
+  const addCircle = () => {
+    if (!fabricCanvasRef.current) return;
+    
+    const circle = new fabric.Circle({
+      left: 150,
+      top: 150,
+      radius: 50,
+      fill: "transparent",
+      stroke: "black",
+      strokeWidth: 2,
+    });
+    
+    fabricCanvasRef.current.add(circle);
+  };
+
+  const clearCanvas = () => {
+    if (!fabricCanvasRef.current) return;
+    fabricCanvasRef.current.clear();
+    fabricCanvasRef.current.backgroundColor = "white";
+    fabricCanvasRef.current.renderAll();
+  };
+
+  const handlePrint = async () => {
+    if (!canvasRef.current) return;
+    
+    await printCanvas(canvasRef.current, {
+      dither: "steinberg",
+      brightness: 128,
+      intensity: 93,
+    });
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Fabric.js Interactive Printer</h2>
+      
+      {/* Canvas */}
+      <canvas 
+        ref={canvasRef}
+        style={{ 
+          border: "1px solid #ccc",
+          display: "block",
+          marginBottom: "20px"
+        }} 
+      />
+      
+      {/* Drawing Tools */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        <button onClick={addText} disabled={!fabricReady}>
+          Add Text
+        </button>
+        <button onClick={addRectangle} disabled={!fabricReady}>
+          Add Rectangle
+        </button>
+        <button onClick={addCircle} disabled={!fabricReady}>
+          Add Circle
+        </button>
+        <button onClick={clearCanvas} disabled={!fabricReady}>
+          Clear
+        </button>
+      </div>
+      
+      {/* Printer Controls */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        <button onClick={connectPrinter} disabled={isConnected}>
+          Connect Printer
+        </button>
+        <button onClick={handlePrint} disabled={!isConnected || isPrinting}>
+          {isPrinting ? "Printing..." : "Print"}
+        </button>
+        <button onClick={disconnect} disabled={!isConnected}>
+          Disconnect
+        </button>
+      </div>
+      
+      {/* Status */}
+      <p style={{ color: isConnected ? "green" : "gray" }}>
+        {statusMessage}
+      </p>
+    </div>
+  );
+}
+
+export default FabricPrinterApp;
+```
+
+---
+
+## 📖 Usage Guides
+
+### 🌐 Browser Usage
+
+#### React Hook
+
+The `useThermalPrinter` hook provides a simple interface for React applications. See the [Quick Start](#-quick-start) section for complete examples.
+
+**Hook API:**
+
+```typescript
+const {
+  isConnected,      // Connection status
+  isPrinting,       // Printing status
+  statusMessage,    // Current status message
+  connectPrinter,   // Connect to printer
+  printCanvas,      // Print canvas content
+  disconnect,       // Disconnect printer
+  getPrinterStatus, // Get detailed status
+  setDitherMethod,  // Set dithering algorithm
+  setPrintIntensity // Set print intensity
+} = useThermalPrinter();
+```
+
+#### Core Client (Advanced)
+
+For more control, use the platform-agnostic client directly:
 
 ```typescript
 import { ThermalPrinterClient, WebBluetoothAdapter } from "react-mxw01-printer";
@@ -96,7 +332,7 @@ printer.on("error", (event) => {
 // Connect
 await printer.connect();
 
-// Get image data (from canvas, file, etc.)
+// Get image data from canvas
 const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -112,9 +348,7 @@ await printer.print(imageData, {
 await printer.disconnect();
 ```
 
-### Node.js / Bun / OpenTUI
-
-The library includes a complete `NodeBluetoothAdapter` that works with Node.js, Bun, and terminal applications like OpenTUI.
+### 🖥️ Node.js / Bun / Server-Side
 
 #### Installation
 
@@ -124,10 +358,9 @@ npm install react-mxw01-printer @stoprocent/noble canvas
 bun add react-mxw01-printer @stoprocent/noble canvas
 ```
 
-**Required dependencies for Node.js:**
-
+**Required dependencies:**
 - `@stoprocent/noble` - Native Bluetooth access
-- `canvas` - Image generation (or use your own image source)
+- `canvas` - Image generation
 
 #### Basic Usage
 
@@ -186,98 +419,53 @@ printInNodeJS().catch(console.error);
 
 #### Complete Example
 
-See `examples/nodejs-example.ts` for a fully working example with:
+See `examples/nodejs-example.ts` for a fully working example.
 
-- Event handling
-- Error management
-- Image generation with canvas
-- Proper connection lifecycle
+#### Platform Support
 
-#### Using with Bun
+- ✅ **Node.js** - Full support
+- ✅ **Bun** - Full support (same code as Node.js)
+- ✅ **OpenTUI** - Works in terminal applications
+- ⚠️ **Windows** - May require additional Bluetooth setup
 
-The same code works with Bun! No changes needed:
+---
 
-```bash
-bun add react-mxw01-printer @stoprocent/noble canvas
-bun run examples/nodejs-example.ts
-```
+## ⚙️ Configuration
 
-#### Using with OpenTUI
+### Print Options
 
 ```typescript
-import {
-  ThermalPrinterClient,
-  NodeBluetoothAdapter,
-} from "react-mxw01-printer";
-
-// In your TUI application
-const adapter = new NodeBluetoothAdapter();
-const printer = new ThermalPrinterClient(adapter);
-
-// Subscribe to events for UI updates
-printer.on("connected", (event) => {
-  // Update TUI: show connected status
-});
-
-printer.on("stateChange", (event) => {
-  // Update TUI: show printer state
-});
-
-// Connect and print
-await printer.connect();
-await printer.print(imageData);
+interface PrintOptions {
+  dither?: DitherMethod;      // Dithering algorithm
+  rotate?: 0 | 90 | 180 | 270; // Rotation angle
+  flip?: "none" | "h" | "v" | "both"; // Flip direction
+  brightness?: number;          // Image brightness (0-255)
+  intensity?: number;           // Print intensity (0-255)
+}
 ```
-
-#### Features
-
-- ✅ **Automatic device discovery** - Scans for MXW01 printer
-- ✅ **Event-driven** - Real-time status updates
-- ✅ **Error handling** - Comprehensive error messages
-- ✅ **Connection management** - Automatic cleanup
-- ✅ **Cross-platform** - Works on macOS, Linux, Windows\*
-
-_\* Windows may require additional Bluetooth setup_
-
-## Print Options
 
 ### Understanding `brightness` vs `intensity`
 
-These two parameters control different aspects of the printing process:
+These parameters control different aspects of the printing process:
 
 #### `brightness` - Image Pre-processing (Software)
 
 - **Range**: 0-255 (default: 128)
-- **When**: Applied during image processing, before sending to printer
+- **Applied**: During image processing, before sending to printer
 - **Effect**: Adjusts the lightness/darkness of the digital image
   - **0-127**: Darker image (more black pixels)
   - **128**: Normal (recommended starting point)
   - **129-255**: Lighter image (fewer black pixels)
 
-**Example:**
-
-```typescript
-await printer.print(imageData, {
-  brightness: 150, // Lighter image
-});
-```
-
 #### `intensity` - Print Head Heat (Hardware)
 
 - **Range**: 0-255 (default: 93)
-- **When**: Sent to printer during actual printing
+- **Applied**: During actual printing (hardware level)
 - **Effect**: Controls thermal print head temperature
   - **50-80**: Light printing (pale, may look faded)
   - **80-100**: Normal printing (recommended range)
   - **100-150**: Dark printing (strong, bold)
-  - **150-255**: Very dark (risk of paper damage, use with caution)
-
-**Example:**
-
-```typescript
-await printer.print(imageData, {
-  intensity: 93, // Normal print intensity
-});
-```
+  - **150-255**: Very dark (risk of paper damage)
 
 ### Recommended Settings
 
@@ -289,14 +477,31 @@ await printer.print(imageData, {
 | Light draft | 150        | 70        | Save ink, faster   |
 | Dark/bold   | 110        | 120       | Maximum darkness   |
 
-### Tips
-
+**Tips:**
 - Start with default values (brightness: 128, intensity: 93)
 - If print is too light, increase `intensity` first
 - If image looks too dark before printing, increase `brightness`
-- High `intensity` values (>150) may damage thermal paper over time
+- High `intensity` values (>150) may damage thermal paper
 
-## API Reference
+### Dithering Algorithms
+
+| Method       | Best For              | Description                    |
+| ------------ | --------------------- | ------------------------------ |
+| `threshold`  | Text, simple graphics | Basic black/white conversion   |
+| `steinberg`  | Photos, general use   | Floyd-Steinberg (recommended)  |
+| `bayer`      | Patterns, textures    | Ordered dithering              |
+| `atkinson`   | Comics, illustrations | Atkinson dithering             |
+| `pattern`    | Special effects       | Pattern-based dithering        |
+
+```typescript
+// Example: Using different dithering methods
+await printCanvas(canvas, { dither: "steinberg" }); // Best for photos
+await printCanvas(canvas, { dither: "threshold" }); // Best for text
+```
+
+---
+
+## 📚 API Reference
 
 ### ThermalPrinterClient
 
@@ -389,7 +594,7 @@ interface PrinterState {
 }
 ```
 
-## Events
+### Events
 
 The client emits the following events:
 
@@ -398,7 +603,25 @@ The client emits the following events:
 - `stateChange` - Fired when printer state changes
 - `error` - Fired when an error occurs
 
-## Architecture
+**Example:**
+
+```typescript
+printer.on("connected", (event) => {
+  console.log("Connected to:", event.device.name);
+});
+
+printer.on("stateChange", (event) => {
+  console.log("Printer state:", event.state);
+});
+
+printer.on("error", (event) => {
+  console.error("Error:", event.error);
+});
+```
+
+---
+
+## 🏗️ Architecture
 
 The library is organized into layers:
 
@@ -408,33 +631,92 @@ The library is organized into layers:
 ├─────────────────────────────────────┤
 │    Platform-Agnostic Core Layer     │  ← ThermalPrinterClient
 ├─────────────────────────────────────┤
-│        Adapter Layer                │  ← WebBluetoothAdapter, etc.
+│        Adapter Layer                │  ← WebBluetoothAdapter, NodeBluetoothAdapter
 ├─────────────────────────────────────┤
 │        Service Layer                │  ← Printer protocol, image processing
 └─────────────────────────────────────┘
 ```
 
-## Browser Compatibility
+### Creating Custom Adapters
+
+You can create custom Bluetooth adapters for different platforms:
+
+```typescript
+import { BluetoothAdapter } from "react-mxw01-printer";
+
+class MyCustomAdapter implements BluetoothAdapter {
+  async connect(): Promise<void> {
+    // Your connection logic
+  }
+
+  async disconnect(): Promise<void> {
+    // Your disconnection logic
+  }
+
+  async send(data: Uint8Array): Promise<void> {
+    // Your send logic
+  }
+
+  on(event: string, listener: Function): void {
+    // Your event handling
+  }
+}
+```
+
+---
+
+## 🌍 Compatibility & Support
+
+### Browser Compatibility
 
 Web Bluetooth API is supported in:
 
-- Chrome/Edge 56+
-- Opera 43+
-- Chrome for Android
+- ✅ Chrome/Edge 56+
+- ✅ Opera 43+
+- ✅ Chrome for Android
 
 Not supported in:
 
-- Firefox
-- Safari (as of 2024)
+- ❌ Firefox
+- ❌ Safari (as of 2024)
 
-## License
+### Platform Support
 
-MIT
+| Platform     | Support | Notes                              |
+| ------------ | ------- | ---------------------------------- |
+| Browser      | ✅      | Requires Web Bluetooth API         |
+| Node.js      | ✅      | Requires @stoprocent/noble         |
+| Bun          | ✅      | Same as Node.js                    |
+| Deno         | ⚠️      | Experimental (custom adapter)      |
+| React Native | ⚠️      | Requires custom Bluetooth adapter  |
 
-## Contributing
+### Troubleshooting
+
+**Connection Issues:**
+- Ensure Bluetooth is enabled on your device
+- Make sure the printer is charged and turned on
+- Try disconnecting and reconnecting
+
+**Print Quality Issues:**
+- Adjust `brightness` and `intensity` settings
+- Try different dithering algorithms
+- Check that the thermal paper is properly loaded
+
+**Node.js Issues:**
+- Ensure `@stoprocent/noble` is properly installed
+- On Linux, you may need to grant Bluetooth permissions
+- On Windows, ensure Bluetooth drivers are up to date
+
+---
+
+## 🤝 Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
 
-## Credits
+## 📄 License
+
+MIT
+
+## 💝 Credits
 
 Based on the MXW01 thermal printer protocol.

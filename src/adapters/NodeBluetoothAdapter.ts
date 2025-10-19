@@ -10,10 +10,11 @@ import type {
 } from "../core/types";
 
 // Bluetooth service UUIDs for MXW01 printer
-const PRINTER_SERVICE_UUID = "ae30";
-const CONTROL_CHAR_UUID = "ae01";
-const NOTIFY_CHAR_UUID = "ae02";
-const DATA_CHAR_UUID = "ae03";
+const PRINTER_SERVICE_UUID = "0000ae30-0000-1000-8000-00805f9b34fb";
+const PRINTER_SERVICE_UUID_ALT = "0000af30-0000-1000-8000-00805f9b34fb";
+const CONTROL_CHAR_UUID = "0000ae01-0000-1000-8000-00805f9b34fb";
+const NOTIFY_CHAR_UUID = "0000ae02-0000-1000-8000-00805f9b34fb";
+const DATA_CHAR_UUID = "0000ae03-0000-1000-8000-00805f9b34fb";
 
 /**
  * Wrapper for Noble characteristic to match our interface
@@ -149,7 +150,7 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
 
       const startScanning = () => {
         console.log("Scanning for MXW01 printer...");
-        this.noble.startScanning([], false);
+        this.noble.startScanning([PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT], false);
       };
 
       if (this.noble.state === "poweredOn") {
@@ -181,25 +182,31 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       await this.peripheral.connectAsync();
       console.log("Connected to peripheral");
 
-      // Discover all services and characteristics
+      // Discover services and characteristics
       const { characteristics } =
-        await this.peripheral.discoverAllServicesAndCharacteristicsAsync();
+        await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
+          [PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT],
+          [CONTROL_CHAR_UUID, NOTIFY_CHAR_UUID, DATA_CHAR_UUID]
+        );
 
       console.log(`Found ${characteristics.length} characteristics`);
 
       // Find the required characteristics by UUID
       for (const char of characteristics) {
         const uuid = char.uuid.toLowerCase().replace(/-/g, "");
+        const controlUuid = CONTROL_CHAR_UUID.toLowerCase().replace(/-/g, "");
+        const notifyUuid = NOTIFY_CHAR_UUID.toLowerCase().replace(/-/g, "");
+        const dataUuid = DATA_CHAR_UUID.toLowerCase().replace(/-/g, "");
 
-        if (uuid.includes(CONTROL_CHAR_UUID)) {
+        if (uuid === controlUuid) {
           this.characteristics.control = char;
           console.log("Found control characteristic");
         }
-        if (uuid.includes(NOTIFY_CHAR_UUID)) {
+        if (uuid === notifyUuid) {
           this.characteristics.notify = char;
           console.log("Found notify characteristic");
         }
-        if (uuid.includes(DATA_CHAR_UUID)) {
+        if (uuid === dataUuid) {
           this.characteristics.data = char;
           console.log("Found data characteristic");
         }

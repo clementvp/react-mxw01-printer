@@ -12,9 +12,12 @@ import type {
 // Bluetooth service UUIDs for MXW01 printer
 const PRINTER_SERVICE_UUID = "0000ae30-0000-1000-8000-00805f9b34fb";
 const PRINTER_SERVICE_UUID_ALT = "0000af30-0000-1000-8000-00805f9b34fb";
-const CONTROL_CHAR_UUID = "0000ae01-0000-1000-8000-00805f9b34fb";
-const NOTIFY_CHAR_UUID = "0000ae02-0000-1000-8000-00805f9b34fb";
-const DATA_CHAR_UUID = "0000ae03-0000-1000-8000-00805f9b34fb";
+
+// Characteristic UUIDs (Noble uses short format: 'ae01', 'ae02', 'ae03')
+// Full UUIDs for reference:
+// - Control: 0000ae01-0000-1000-8000-00805f9b34fb
+// - Notify:  0000ae02-0000-1000-8000-00805f9b34fb
+// - Data:    0000ae03-0000-1000-8000-00805f9b34fb
 
 /**
  * Wrapper for Noble characteristic to match our interface
@@ -174,37 +177,20 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       await this.peripheral.connectAsync();
       console.log("Connected to peripheral");
 
-      // Discover services and characteristics
+      // Discover all services and characteristics (Noble works better without filters)
       const { characteristics } =
-        await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
-          [PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT],
-          [CONTROL_CHAR_UUID, NOTIFY_CHAR_UUID, DATA_CHAR_UUID]
-        );
+        await this.peripheral.discoverAllServicesAndCharacteristicsAsync();
 
       console.log(`Found ${characteristics.length} characteristics`);
 
-      // Helper function to normalize UUID for comparison (Noble returns short format)
-      const normalizeUuid = (uuid: string): string => {
-        return uuid.toLowerCase().replace(/-/g, '');
-      };
+      // Find the required characteristics by short UUID (Noble uses short format)
+      this.characteristics.control = characteristics.find((c: any) => c.uuid === 'ae01');
+      this.characteristics.notify = characteristics.find((c: any) => c.uuid === 'ae02');
+      this.characteristics.data = characteristics.find((c: any) => c.uuid === 'ae03');
 
-      // Find the required characteristics by UUID
-      for (const char of characteristics) {
-        const charUuid = normalizeUuid(char.uuid);
-        
-        if (charUuid === normalizeUuid(CONTROL_CHAR_UUID) || charUuid.includes('ae01')) {
-          this.characteristics.control = char;
-          console.log("Found control characteristic");
-        }
-        if (charUuid === normalizeUuid(NOTIFY_CHAR_UUID) || charUuid.includes('ae02')) {
-          this.characteristics.notify = char;
-          console.log("Found notify characteristic");
-        }
-        if (charUuid === normalizeUuid(DATA_CHAR_UUID) || charUuid.includes('ae03')) {
-          this.characteristics.data = char;
-          console.log("Found data characteristic");
-        }
-      }
+      console.log('Control:', this.characteristics.control ? '✅' : '❌');
+      console.log('Notify:', this.characteristics.notify ? '✅' : '❌');
+      console.log('Data:', this.characteristics.data ? '✅' : '❌');
 
       // Verify all required characteristics are found
       if (

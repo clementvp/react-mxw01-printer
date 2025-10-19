@@ -1,5 +1,5 @@
-import { useRef as O, useState as y, useEffect as I, useCallback as w } from "react";
-const b = 384, C = b / 8, M = 90 * C, V = [
+import { useRef as F, useState as y, useEffect as I, useCallback as w } from "react";
+const b = 384, C = b / 8, U = 90 * C, x = [
   0,
   7,
   14,
@@ -263,16 +263,16 @@ const b = 384, C = b / 8, M = 90 * C, V = [
   FlushData: 173,
   PrintComplete: 170
 };
-function H(n) {
+function $(i) {
   let t = 0;
-  for (const e of n)
-    t = V[(t ^ e) & 255];
+  for (const e of i)
+    t = x[(t ^ e) & 255];
   return t & 255;
 }
-function v(n) {
-  return new Promise((t) => setTimeout(() => t(), n));
+function v(i) {
+  return new Promise((t) => setTimeout(() => t(), i));
 }
-class G {
+class j {
   controlWrite;
   dataWrite;
   printComplete;
@@ -295,14 +295,14 @@ class G {
     }
     const e = t[2], r = t[4] | t[5] << 8, s = t.slice(6, 6 + r);
     if (e === p.PrintComplete && (this.printComplete = !0), e === p.GetStatus && s.length >= 7) {
-      const i = s[6];
+      const n = s[6];
       this.state = {
-        printing: (i & 1) !== 0,
-        paper_jam: (i & 2) !== 0,
-        out_of_paper: (i & 4) !== 0,
-        cover_open: (i & 8) !== 0,
-        battery_low: (i & 16) !== 0,
-        overheat: (i & 32) !== 0
+        printing: (n & 1) !== 0,
+        paper_jam: (n & 2) !== 0,
+        out_of_paper: (n & 4) !== 0,
+        cover_open: (n & 8) !== 0,
+        battery_low: (n & 16) !== 0,
+        overheat: (n & 32) !== 0
       };
     }
     const a = this.pendingResolvers.get(e);
@@ -318,8 +318,8 @@ class G {
       r >> 8 & 255
     ]), a = new Uint8Array(s.length + e.length);
     a.set(s), a.set(e, s.length);
-    const i = H(e), c = new Uint8Array(a.length + 2);
-    return c.set(a), c[c.length - 2] = i, c[c.length - 1] = 255, c;
+    const n = $(e), c = new Uint8Array(a.length + 2);
+    return c.set(a), c[c.length - 2] = n, c[c.length - 1] = 255, c;
   }
   waitForNotification(t, e = 1e4) {
     return new Promise((r, s) => {
@@ -328,8 +328,8 @@ class G {
           new Error(`Timeout waiting for notification 0x${t.toString(16)}`)
         );
       }, e);
-      this.pendingResolvers.set(t, (i) => {
-        clearTimeout(a), r(i);
+      this.pendingResolvers.set(t, (n) => {
+        clearTimeout(a), r(n);
       });
     });
   }
@@ -370,78 +370,78 @@ class G {
       throw new Error("Print timeout: Did not receive completion notification");
   }
 }
-function Y(n) {
-  if (n.length !== b)
+function B(i) {
+  if (i.length !== b)
     throw new Error(
-      `Row length must be ${b}, got ${n.length}`
+      `Row length must be ${b}, got ${i.length}`
     );
   const t = new Uint8Array(C);
   for (let e = 0; e < C; e++) {
     let r = 0;
     for (let s = 0; s < 8; s++)
-      n[e * 8 + s] && (r |= 1 << s);
+      i[e * 8 + s] && (r |= 1 << s);
     t[e] = r;
   }
   return t;
 }
-function z(n) {
-  const t = n.length;
+function V(i) {
+  const t = i.length;
   let e = new Uint8Array(0);
   for (let r = 0; r < t; r++) {
-    const s = Y(n[r]), a = new Uint8Array(e.length + s.length);
+    const s = B(i[r]), a = new Uint8Array(e.length + s.length);
     a.set(e), a.set(s, e.length), e = a;
   }
-  if (e.length < M) {
-    const r = new Uint8Array(M - e.length), s = new Uint8Array(e.length + r.length);
+  if (e.length < U) {
+    const r = new Uint8Array(U - e.length), s = new Uint8Array(e.length + r.length);
     s.set(e), s.set(r, e.length), e = s;
   }
   return e;
 }
-function X(n, t = 128, e = !0) {
-  const r = new Uint8ClampedArray(n.length);
-  let s = 0, a = 0, i = 0, c = 0, o = 0, h = 0;
+function O(i, t = 128, e = !0) {
+  const r = new Uint8ClampedArray(i.length);
+  let s = 0, a = 0, n = 0, c = 0, o = 0, h = 0;
   for (let u = 0; u < r.length; ++u)
-    h = n[u], s = h & 255, a = h >> 8 & 255, i = h >> 16 & 255, c = (h >> 24 & 255) / 255, c < 1 && e ? (c = 1 - c, s += (255 - s) * c, a += (255 - a) * c, i += (255 - i) * c) : (s *= c, a *= c, i *= c), o = s * 0.2125 + a * 0.7154 + i * 0.0721, o += (t - 128) * (1 - o / 255) * (o / 255) * 2, r[u] = o;
+    h = i[u], s = h & 255, a = h >> 8 & 255, n = h >> 16 & 255, c = (h >> 24 & 255) / 255, c < 1 && e ? (c = 1 - c, s += (255 - s) * c, a += (255 - a) * c, n += (255 - n) * c) : (s *= c, a *= c, n *= c), o = s * 0.2125 + a * 0.7154 + n * 0.0721, o += (t - 128) * (1 - o / 255) * (o / 255) * 2, r[u] = o;
   return r;
 }
-function J(n, t = !1) {
-  const e = new Uint32Array(n.length);
-  for (let r = 0; r < n.length; ++r) {
-    const s = n[r] === 255 && t ? 0 : 4278190080;
-    e[r] = s | n[r] << 16 | n[r] << 8 | n[r];
+function G(i, t = !1) {
+  const e = new Uint32Array(i.length);
+  for (let r = 0; r < i.length; ++r) {
+    const s = i[r] === 255 && t ? 0 : 4278190080;
+    e[r] = s | i[r] << 16 | i[r] << 8 | i[r];
   }
   return e;
 }
-function K(n) {
-  for (let t = 0; t < n.length; ++t)
-    n[t] = n[t] > 128 ? 255 : 0;
-  return n;
+function H(i) {
+  for (let t = 0; t < i.length; ++t)
+    i[t] = i[t] > 128 ? 255 : 0;
+  return i;
 }
-function Q(n, t, e) {
-  let r = 0, s = 0, a = 0, i = 0;
+function Y(i, t, e) {
+  let r = 0, s = 0, a = 0, n = 0;
   for (let c = 0; c < e; ++c)
     for (let o = 0; o < t; ++o)
-      s = n[r], a = n[r] > 128 ? 255 : 0, i = s - a, n[r] = a, o >= 0 && o < t - 1 && c >= 0 && c < e && (n[r + 1] += i * 7 / 16), o >= 1 && o < t && c >= 0 && c < e - 1 && (n[r + t - 1] += i * 3 / 16), o >= 0 && o < t && c >= 0 && c < e - 1 && (n[r + t] += i * 5 / 16), o >= 0 && o < t - 1 && c >= 0 && c < e - 1 && (n[r + t + 1] += i * 1 / 16), ++r;
-  return n;
+      s = i[r], a = i[r] > 128 ? 255 : 0, n = s - a, i[r] = a, o >= 0 && o < t - 1 && c >= 0 && c < e && (i[r + 1] += n * 7 / 16), o >= 1 && o < t && c >= 0 && c < e - 1 && (i[r + t - 1] += n * 3 / 16), o >= 0 && o < t && c >= 0 && c < e - 1 && (i[r + t] += n * 5 / 16), o >= 0 && o < t - 1 && c >= 0 && c < e - 1 && (i[r + t + 1] += n * 1 / 16), ++r;
+  return i;
 }
-function Z(n, t, e) {
-  let i = 0, c = 0, o = 0, h = 0, u = 0;
+function z(i, t, e) {
+  let n = 0, c = 0, o = 0, h = 0, u = 0;
   for (c = 0; c < e - 4; c += 4) {
-    for (i = 0; i < t - 4; i += 4) {
+    for (n = 0; n < t - 4; n += 4) {
       for (u = 0, o = 0; o < 4; ++o)
         for (h = 0; h < 4; ++h)
-          u += n[(c + h) * t + i + o];
+          u += i[(c + h) * t + n + o];
       for (u = (1 - u / 16 / 255) * 4, o = 0; o < 4; ++o)
         for (h = 0; h < 4; ++h)
-          n[(c + h) * t + i + o] = Math.abs(o - 3) >= u || Math.abs(h - 3) >= u ? 255 : 0;
+          i[(c + h) * t + n + o] = Math.abs(o - 3) >= u || Math.abs(h - 3) >= u ? 255 : 0;
     }
-    for (; i < t; ++i) n[c * t + i] = 255;
+    for (; n < t; ++n) i[c * t + n] = 255;
   }
   for (; c < e; ++c)
-    for (i = 0; i < t; ++i) n[c * t + i] = 255;
-  return n;
+    for (n = 0; n < t; ++n) i[c * t + n] = 255;
+  return i;
 }
-function tt(n, t, e) {
+function X(i, t, e) {
   const r = [
     0,
     48,
@@ -509,110 +509,110 @@ function tt(n, t, e) {
     21
   ], s = 0.6;
   let a = 0;
-  for (let i = 0; i < e; ++i)
+  for (let n = 0; n < e; ++n)
     for (let c = 0; c < t; ++c) {
-      const o = r[i % 8 * 8 + c % 8];
-      let h = n[a];
-      h = h + (o - 32) * s, h < 0 && (h = 0), h > 255 && (h = 255), n[a] = h > 128 ? 255 : 0, ++a;
+      const o = r[n % 8 * 8 + c % 8];
+      let h = i[a];
+      h = h + (o - 32) * s, h < 0 && (h = 0), h > 255 && (h = 255), i[a] = h > 128 ? 255 : 0, ++a;
     }
-  return n;
+  return i;
 }
-function et(n, t, e) {
-  let r = 0, s = 0, a = 0, i = 0;
+function J(i, t, e) {
+  let r = 0, s = 0, a = 0, n = 0;
   for (let c = 0; c < e; ++c)
     for (let o = 0; o < t; ++o)
-      s = n[r], a = s > 128 ? 255 : 0, i = s - a >> 3, n[r] = a, o < t - 1 && (n[r + 1] += i), o < t - 2 && (n[r + 2] += i), c < e - 1 && (o > 0 && (n[r + t - 1] += i), n[r + t] += i, o < t - 1 && (n[r + t + 1] += i)), c < e - 2 && (n[r + 2 * t] += i), ++r;
-  return n;
+      s = i[r], a = s > 128 ? 255 : 0, n = s - a >> 3, i[r] = a, o < t - 1 && (i[r + 1] += n), o < t - 2 && (i[r + 2] += n), c < e - 1 && (o > 0 && (i[r + t - 1] += n), i[r + t] += n, o < t - 1 && (i[r + t + 1] += n)), c < e - 2 && (i[r + 2 * t] += n), ++r;
+  return i;
 }
-function T(n, t, e, r) {
-  const s = new Uint8ClampedArray(n.length);
+function T(i, t, e, r) {
+  const s = new Uint8ClampedArray(i.length);
   switch (r) {
     case 0:
-      return n;
+      return i;
     case 90:
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[(t - i - 1) * e + a];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[(t - n - 1) * e + a];
       break;
     case 180:
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[(e - a - 1) * t + (t - i - 1)];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[(e - a - 1) * t + (t - n - 1)];
       break;
     case 270:
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[i * e + (e - a - 1)];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[n * e + (e - a - 1)];
       break;
   }
   return s;
 }
-function rt(n, t, e, r) {
-  const s = new Uint8ClampedArray(n.length);
+function K(i, t, e, r) {
+  const s = new Uint8ClampedArray(i.length);
   switch (r) {
     case "none":
-      return n;
+      return i;
     case "h":
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[a * t + (t - i - 1)];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[a * t + (t - n - 1)];
       break;
     case "v":
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[(e - a - 1) * t + i];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[(e - a - 1) * t + n];
       break;
     case "both":
       for (let a = 0; a < e; a++)
-        for (let i = 0; i < t; i++)
-          s[a * t + i] = n[(e - a - 1) * t + (t - i - 1)];
+        for (let n = 0; n < t; n++)
+          s[a * t + n] = i[(e - a - 1) * t + (t - n - 1)];
       break;
   }
   return s;
 }
-function it(n, t) {
+function Q(i, t) {
   const e = new Uint32Array(
-    new Uint8ClampedArray(n.data).buffer
-  ), r = n.width, s = n.height;
-  let a = X(e, t.brightness, !0);
+    new Uint8ClampedArray(i.data).buffer
+  ), r = i.width, s = i.height;
+  let a = O(e, t.brightness, !0);
   switch (t.dither) {
     case "steinberg":
-      a = Q(a, r, s);
+      a = Y(a, r, s);
       break;
     case "bayer":
-      a = tt(a, r, s);
+      a = X(a, r, s);
       break;
     case "atkinson":
-      a = et(a, r, s);
+      a = J(a, r, s);
       break;
     case "pattern":
-      a = Z(a, r, s);
+      a = z(a, r, s);
       break;
     case "threshold":
     default:
-      a = K(a);
+      a = H(a);
       break;
   }
-  a = rt(a, r, s, t.flip);
-  let i = r, c = s;
-  t.rotate === 0 || t.rotate === 180 ? a = T(a, r, s, t.rotate) : (a = T(a, s, r, t.rotate), i = s, c = r);
-  const o = J(a, !0), h = [];
+  a = K(a, r, s, t.flip);
+  let n = r, c = s;
+  t.rotate === 0 || t.rotate === 180 ? a = T(a, r, s, t.rotate) : (a = T(a, s, r, t.rotate), n = s, c = r);
+  const o = G(a, !0), h = [];
   for (let u = 0; u < c; u++) {
     const d = [];
-    for (let f = 0; f < i; f++) {
-      const m = u * i + f, _ = a[m];
-      d.push(_ < 128);
+    for (let f = 0; f < n; f++) {
+      const m = u * n + f, S = a[m];
+      d.push(S < 128);
     }
     h.push(d);
   }
   return {
     processedData: o,
-    width: i,
+    width: n,
     height: c,
     binaryRows: h
   };
 }
-class nt {
+class Z {
   adapter;
   printer = null;
   connection = null;
@@ -691,7 +691,7 @@ class nt {
    */
   async connect() {
     try {
-      this.updateStatus("Connecting to printer..."), this.device = await this.adapter.requestDevice(), this.connection = await this.adapter.connect(this.device), this.printer = new G(
+      this.updateStatus("Connecting to printer..."), this.device = await this.adapter.requestDevice(), this.connection = await this.adapter.connect(this.device), this.printer = new j(
         this.connection.controlCharacteristic.writeValueWithoutResponse.bind(
           this.connection.controlCharacteristic
         ),
@@ -743,16 +743,16 @@ class nt {
         rotate: 180,
         // Required rotation for MXW01 printer
         ...e
-      }, s = b / t.width, a = Math.floor(t.height * s), i = this.scaleImageData(
+      }, s = b / t.width, a = Math.floor(t.height * s), n = this.scaleImageData(
         t,
         b,
         a
       );
       this.updateStatus("Processing image...");
-      const { binaryRows: c } = it(
-        i,
+      const { binaryRows: c } = Q(
+        n,
         r
-      ), o = z(c), h = e.intensity ?? this._printIntensity;
+      ), o = V(c), h = e.intensity ?? this._printIntensity;
       this.updateStatus("Configuring printer..."), await this.printer.setIntensity(h);
       const u = await this.printer.requestStatus();
       if (u.length >= 13 && u[12] !== 0)
@@ -774,10 +774,10 @@ class nt {
    * Simple nearest-neighbor scaling
    */
   scaleImageData(t, e, r) {
-    const s = new Uint8ClampedArray(e * r * 4), a = t.width / e, i = t.height / r;
+    const s = new Uint8ClampedArray(e * r * 4), a = t.width / e, n = t.height / r;
     for (let c = 0; c < r; c++)
       for (let o = 0; o < e; o++) {
-        const h = Math.floor(o * a), d = (Math.floor(c * i) * t.width + h) * 4, f = (c * e + o) * 4;
+        const h = Math.floor(o * a), d = (Math.floor(c * n) * t.width + h) * 4, f = (c * e + o) * 4;
         s[f] = t.data[d], s[f + 1] = t.data[d + 1], s[f + 2] = t.data[d + 2], s[f + 3] = t.data[d + 3];
       }
     return {
@@ -811,7 +811,7 @@ class nt {
     this.disconnect(), this.eventListeners.clear();
   }
 }
-const A = "0000ae30-0000-1000-8000-00805f9b34fb", R = "0000af30-0000-1000-8000-00805f9b34fb", st = "0000ae01-0000-1000-8000-00805f9b34fb", at = "0000ae02-0000-1000-8000-00805f9b34fb", ct = "0000ae03-0000-1000-8000-00805f9b34fb";
+const A = "0000ae30-0000-1000-8000-00805f9b34fb", R = "0000af30-0000-1000-8000-00805f9b34fb", tt = "0000ae01-0000-1000-8000-00805f9b34fb", et = "0000ae02-0000-1000-8000-00805f9b34fb", rt = "0000ae03-0000-1000-8000-00805f9b34fb";
 class D {
   constructor(t) {
     this.characteristic = t;
@@ -832,7 +832,7 @@ class D {
     this.characteristic.removeEventListener(t, e);
   }
 }
-class ot {
+class it {
   device = null;
   server = null;
   /**
@@ -882,10 +882,10 @@ class ot {
       } catch {
         console.log("Trying alternate UUID for macOS compatibility..."), r = await this.server.getPrimaryService(R);
       }
-      const [s, a, i] = await Promise.all([
-        r.getCharacteristic(st),
-        r.getCharacteristic(at),
-        r.getCharacteristic(ct)
+      const [s, a, n] = await Promise.all([
+        r.getCharacteristic(tt),
+        r.getCharacteristic(et),
+        r.getCharacteristic(rt)
       ]);
       return {
         device: t,
@@ -895,7 +895,7 @@ class ot {
         controlCharacteristic: new D(
           s
         ),
-        dataCharacteristic: new D(i),
+        dataCharacteristic: new D(n),
         notifyCharacteristic: new D(a)
       };
     } catch (e) {
@@ -905,67 +905,67 @@ class ot {
     }
   }
 }
-function lt() {
-  const n = O(null), [t, e] = y(!1), [r, s] = y(!1), [a, i] = y(null), [c, o] = y(
+function ct() {
+  const i = F(null), [t, e] = y(!1), [r, s] = y(!1), [a, n] = y(null), [c, o] = y(
     "Ready to connect printer"
   ), [h, u] = y("steinberg"), [d, f] = y(93);
   I(() => {
     try {
-      const l = new ot();
-      n.current = new nt(l);
-      const S = n.current.on("connected", () => {
+      const l = new it();
+      i.current = new Z(l);
+      const P = i.current.on("connected", () => {
         e(!0);
-      }), g = n.current.on(
+      }), g = i.current.on(
         "disconnected",
         () => {
-          e(!1), i(null);
+          e(!1), n(null);
         }
-      ), P = n.current.on(
+      ), _ = i.current.on(
         "stateChange",
         (E) => {
-          i(E.state);
+          n(E.state);
         }
-      ), B = n.current.on("error", (E) => {
+      ), q = i.current.on("error", (E) => {
         console.error("Printer error:", E.error);
       });
       return () => {
-        S(), g(), P(), B(), n.current?.dispose();
+        P(), g(), _(), q(), i.current?.dispose();
       };
     } catch (l) {
       console.error("Failed to initialize printer client:", l), o(`Initialization error: ${l.message}`);
     }
   }, []), I(() => {
-    n.current && (e(n.current.isConnected), s(n.current.isPrinting), i(n.current.printerState), o(n.current.statusMessage));
+    i.current && (e(i.current.isConnected), s(i.current.isPrinting), n(i.current.printerState), o(i.current.statusMessage));
   }, []), I(() => {
     const l = setInterval(() => {
-      n.current && (o(n.current.statusMessage), s(n.current.isPrinting));
+      i.current && (o(i.current.statusMessage), s(i.current.isPrinting));
     }, 100);
     return () => clearInterval(l);
   }, []);
   const m = w(async () => {
-    if (!n.current)
+    if (!i.current)
       throw new Error("Printer client not initialized");
     try {
-      await n.current.connect(), e(!0), o(n.current.statusMessage);
+      await i.current.connect(), e(!0), o(i.current.statusMessage);
     } catch (l) {
       throw o(`Connection error: ${l.message}`), l;
     }
-  }, []), _ = w(async () => {
-    if (!n.current)
+  }, []), S = w(async () => {
+    if (!i.current)
       return null;
-    const l = await n.current.getStatus();
-    return l && i(l), o(n.current.statusMessage), l;
-  }, []), $ = w(
-    async (l, S = {}) => {
-      if (!n.current)
+    const l = await i.current.getStatus();
+    return l && n(l), o(i.current.statusMessage), l;
+  }, []), L = w(
+    async (l, P = {}) => {
+      if (!i.current)
         throw new Error("Printer client not initialized");
       try {
         s(!0);
         const g = l.getContext("2d");
         if (!g)
           throw new Error("Failed to get canvas context");
-        const P = g.getImageData(0, 0, l.width, l.height);
-        await n.current.print(P, S), o(n.current.statusMessage);
+        const _ = g.getImageData(0, 0, l.width, l.height);
+        await i.current.print(_, P), o(i.current.statusMessage);
       } catch (g) {
         throw o(`Print error: ${g.message}`), g;
       } finally {
@@ -973,12 +973,12 @@ function lt() {
       }
     },
     []
-  ), q = w(async () => {
-    n.current && (await n.current.disconnect(), e(!1), i(null), o(n.current.statusMessage));
-  }, []), x = w((l) => {
-    u(l), n.current?.setDitherMethod(l);
-  }, []), j = w((l) => {
-    f(l), n.current?.setPrintIntensity(l);
+  ), N = w(async () => {
+    i.current && (await i.current.disconnect(), e(!1), n(null), o(i.current.statusMessage));
+  }, []), k = w((l) => {
+    u(l), i.current?.setDitherMethod(l);
+  }, []), W = w((l) => {
+    f(l), i.current?.setPrintIntensity(l);
   }, []);
   return {
     isConnected: t,
@@ -988,15 +988,15 @@ function lt() {
     ditherMethod: h,
     printIntensity: d,
     connectPrinter: m,
-    printCanvas: $,
-    getPrinterStatus: _,
-    disconnect: q,
-    setDitherMethod: x,
-    setPrintIntensity: j
+    printCanvas: L,
+    getPrinterStatus: S,
+    disconnect: N,
+    setDitherMethod: k,
+    setPrintIntensity: W
   };
 }
-const L = "0000ae30-0000-1000-8000-00805f9b34fb", N = "0000af30-0000-1000-8000-00805f9b34fb", k = "0000ae01-0000-1000-8000-00805f9b34fb", F = "0000ae02-0000-1000-8000-00805f9b34fb", W = "0000ae03-0000-1000-8000-00805f9b34fb";
-class U {
+const nt = "0000ae30-0000-1000-8000-00805f9b34fb", st = "0000af30-0000-1000-8000-00805f9b34fb";
+class M {
   characteristic;
   dataListeners = /* @__PURE__ */ new Map();
   constructor(t) {
@@ -1036,7 +1036,7 @@ class U {
     }
   }
 }
-class ut {
+class ot {
   noble = null;
   peripheral = null;
   characteristics = {};
@@ -1064,23 +1064,23 @@ class ut {
     return new Promise((t, e) => {
       const r = setTimeout(() => {
         this.noble.stopScanning(), e(new Error("Device scan timeout (30s)"));
-      }, 3e4), s = (i) => {
-        this.noble.stopScanning(), clearTimeout(r), this.peripheral = i, this.noble.removeListener("discover", s), t({
-          id: i.id || i.uuid,
-          name: i.advertisement.localName || "MXW01 Printer"
+      }, 3e4), s = (n) => {
+        this.noble.stopScanning(), clearTimeout(r), this.peripheral = n, this.noble.removeListener("discover", s), t({
+          id: n.id || n.uuid,
+          name: n.advertisement.localName || "MXW01 Printer"
         });
       };
       this.noble.on("discover", s);
       const a = () => {
-        console.log("Scanning for MXW01 printer..."), this.noble.startScanning([L, N], !1);
+        console.log("Scanning for MXW01 printer..."), this.noble.startScanning([nt, st], !1);
       };
       if (this.noble.state === "poweredOn")
         a();
       else {
-        const i = (c) => {
-          c === "poweredOn" && (this.noble.removeListener("stateChange", i), a());
+        const n = (c) => {
+          c === "poweredOn" && (this.noble.removeListener("stateChange", n), a());
         };
-        this.noble.on("stateChange", i);
+        this.noble.on("stateChange", n);
       }
     });
   }
@@ -1092,35 +1092,26 @@ class ut {
       throw new Error("No peripheral found. Call requestDevice() first.");
     try {
       await this.peripheral.connectAsync(), console.log("Connected to peripheral");
-      const { characteristics: e } = await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
-        [L, N],
-        [k, F, W]
-      );
-      console.log(`Found ${e.length} characteristics`);
-      const r = (a) => a.toLowerCase().replace(/-/g, "");
-      for (const a of e) {
-        const i = r(a.uuid);
-        (i === r(k) || i.includes("ae01")) && (this.characteristics.control = a, console.log("Found control characteristic")), (i === r(F) || i.includes("ae02")) && (this.characteristics.notify = a, console.log("Found notify characteristic")), (i === r(W) || i.includes("ae03")) && (this.characteristics.data = a, console.log("Found data characteristic"));
-      }
-      if (!this.characteristics.control || !this.characteristics.notify || !this.characteristics.data)
+      const { characteristics: e } = await this.peripheral.discoverAllServicesAndCharacteristicsAsync();
+      if (console.log(`Found ${e.length} characteristics`), this.characteristics.control = e.find((s) => s.uuid === "ae01"), this.characteristics.notify = e.find((s) => s.uuid === "ae02"), this.characteristics.data = e.find((s) => s.uuid === "ae03"), console.log("Control:", this.characteristics.control ? "✅" : "❌"), console.log("Notify:", this.characteristics.notify ? "✅" : "❌"), console.log("Data:", this.characteristics.data ? "✅" : "❌"), !this.characteristics.control || !this.characteristics.notify || !this.characteristics.data)
         throw new Error(
           `Missing required characteristics. Found: ${Object.keys(
             this.characteristics
           ).join(", ")}`
         );
-      const s = this.peripheral;
+      const r = this.peripheral;
       return {
         device: t,
         disconnect: async () => {
-          s && s.state === "connected" && (await s.disconnectAsync(), console.log("Disconnected from peripheral")), this.peripheral = null, this.characteristics = {};
+          r && r.state === "connected" && (await r.disconnectAsync(), console.log("Disconnected from peripheral")), this.peripheral = null, this.characteristics = {};
         },
-        controlCharacteristic: new U(
+        controlCharacteristic: new M(
           this.characteristics.control
         ),
-        dataCharacteristic: new U(
+        dataCharacteristic: new M(
           this.characteristics.data
         ),
-        notifyCharacteristic: new U(
+        notifyCharacteristic: new M(
           this.characteristics.notify
         )
       };
@@ -1139,16 +1130,16 @@ class ut {
 }
 export {
   p as Command,
-  M as MIN_DATA_BYTES,
-  G as MXW01Printer,
-  ut as NodeBluetoothAdapter,
+  U as MIN_DATA_BYTES,
+  j as MXW01Printer,
+  ot as NodeBluetoothAdapter,
   b as PRINTER_WIDTH,
   C as PRINTER_WIDTH_BYTES,
-  nt as ThermalPrinterClient,
-  ot as WebBluetoothAdapter,
-  Y as encode1bppRow,
-  z as prepareImageDataBuffer,
-  it as processImageForPrinter,
-  lt as useThermalPrinter
+  Z as ThermalPrinterClient,
+  it as WebBluetoothAdapter,
+  B as encode1bppRow,
+  V as prepareImageDataBuffer,
+  Q as processImageForPrinter,
+  ct as useThermalPrinter
 };
 //# sourceMappingURL=index.js.map

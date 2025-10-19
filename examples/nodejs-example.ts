@@ -97,7 +97,7 @@ async function main() {
     await printer.print(imageData, {
       dither: "steinberg",
       brightness: 128,
-      intensity: 0x5d,
+      intensity: 93,
     });
 
     console.log("✅ Print completed!");

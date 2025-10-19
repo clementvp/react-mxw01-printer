@@ -48,7 +48,7 @@ function PrinterApp() {
     await printCanvas(canvas, {
       dither: "steinberg",
       brightness: 128,
-      intensity: 0x5d,
+      intensity: 93,
     });
   };
 
@@ -105,7 +105,7 @@ const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 await printer.print(imageData, {
   dither: "steinberg",
   brightness: 128,
-  intensity: 0x5d,
+  intensity: 93,
 });
 
 // Disconnect
@@ -238,6 +238,64 @@ await printer.print(imageData);
 
 _\* Windows may require additional Bluetooth setup_
 
+## Print Options
+
+### Understanding `brightness` vs `intensity`
+
+These two parameters control different aspects of the printing process:
+
+#### `brightness` - Image Pre-processing (Software)
+
+- **Range**: 0-255 (default: 128)
+- **When**: Applied during image processing, before sending to printer
+- **Effect**: Adjusts the lightness/darkness of the digital image
+  - **0-127**: Darker image (more black pixels)
+  - **128**: Normal (recommended starting point)
+  - **129-255**: Lighter image (fewer black pixels)
+
+**Example:**
+
+```typescript
+await printer.print(imageData, {
+  brightness: 150, // Lighter image
+});
+```
+
+#### `intensity` - Print Head Heat (Hardware)
+
+- **Range**: 0-255 (default: 93)
+- **When**: Sent to printer during actual printing
+- **Effect**: Controls thermal print head temperature
+  - **50-80**: Light printing (pale, may look faded)
+  - **80-100**: Normal printing (recommended range)
+  - **100-150**: Dark printing (strong, bold)
+  - **150-255**: Very dark (risk of paper damage, use with caution)
+
+**Example:**
+
+```typescript
+await printer.print(imageData, {
+  intensity: 93, // Normal print intensity
+});
+```
+
+### Recommended Settings
+
+| Use Case    | brightness | intensity | Description        |
+| ----------- | ---------- | --------- | ------------------ |
+| Normal text | 128        | 93        | Balanced, readable |
+| Photos      | 140        | 100       | Good contrast      |
+| Barcodes/QR | 128        | 110       | High contrast      |
+| Light draft | 150        | 70        | Save ink, faster   |
+| Dark/bold   | 110        | 120       | Maximum darkness   |
+
+### Tips
+
+- Start with default values (brightness: 128, intensity: 93)
+- If print is too light, increase `intensity` first
+- If image looks too dark before printing, increase `brightness`
+- High `intensity` values (>150) may damage thermal paper over time
+
 ## API Reference
 
 ### ThermalPrinterClient
@@ -354,30 +412,6 @@ The library is organized into layers:
 ├─────────────────────────────────────┤
 │        Service Layer                │  ← Printer protocol, image processing
 └─────────────────────────────────────┘
-```
-
-## Creating Custom Adapters
-
-To use the library in environments without Web Bluetooth (e.g., Node.js, Bun), implement the `BluetoothAdapter` interface:
-
-```typescript
-import { BluetoothAdapter } from "react-mxw01-printer";
-
-class MyCustomAdapter implements BluetoothAdapter {
-  isAvailable(): boolean {
-    // Check if Bluetooth is available
-  }
-
-  async requestDevice(): Promise<BluetoothDevice> {
-    // Request/discover a device
-  }
-
-  async connect(
-    device: BluetoothDevice
-  ): Promise<BluetoothConnection & BluetoothServiceInfo> {
-    // Connect and return characteristics
-  }
-}
 ```
 
 ## Browser Compatibility

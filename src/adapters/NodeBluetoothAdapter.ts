@@ -174,20 +174,37 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
       await this.peripheral.connectAsync();
       console.log("Connected to peripheral");
 
-      // Discover all services and characteristics
+      // Discover services and characteristics
       const { characteristics } =
-        await this.peripheral.discoverAllServicesAndCharacteristicsAsync();
+        await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
+          [PRINTER_SERVICE_UUID, PRINTER_SERVICE_UUID_ALT],
+          [CONTROL_CHAR_UUID, NOTIFY_CHAR_UUID, DATA_CHAR_UUID]
+        );
 
       console.log(`Found ${characteristics.length} characteristics`);
 
-      // Find the required characteristics by short UUID (Noble uses short format)
-      this.characteristics.control = characteristics.find((c: any) => c.uuid === 'ae01');
-      this.characteristics.notify = characteristics.find((c: any) => c.uuid === 'ae02');
-      this.characteristics.data = characteristics.find((c: any) => c.uuid === 'ae03');
+      // Helper function to normalize UUID for comparison (Noble returns short format)
+      const normalizeUuid = (uuid: string): string => {
+        return uuid.toLowerCase().replace(/-/g, '');
+      };
 
-      console.log('Control:', this.characteristics.control ? '✅' : '❌');
-      console.log('Notify:', this.characteristics.notify ? '✅' : '❌');
-      console.log('Data:', this.characteristics.data ? '✅' : '❌');
+      // Find the required characteristics by UUID
+      for (const char of characteristics) {
+        const charUuid = normalizeUuid(char.uuid);
+        
+        if (charUuid === normalizeUuid(CONTROL_CHAR_UUID) || charUuid.includes('ae01')) {
+          this.characteristics.control = char;
+          console.log("Found control characteristic");
+        }
+        if (charUuid === normalizeUuid(NOTIFY_CHAR_UUID) || charUuid.includes('ae02')) {
+          this.characteristics.notify = char;
+          console.log("Found notify characteristic");
+        }
+        if (charUuid === normalizeUuid(DATA_CHAR_UUID) || charUuid.includes('ae03')) {
+          this.characteristics.data = char;
+          console.log("Found data characteristic");
+        }
+      }
 
       // Verify all required characteristics are found
       if (

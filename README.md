@@ -14,18 +14,63 @@ Platform-agnostic library for MXW01 thermal printer with React hooks and Node.js
 
 ## Installation
 
+Choose the installation method based on your use case:
+
+### 📱 For React Applications
+
+Install the library with React:
+
+```bash
+npm install react-mxw01-printer react
+```
+
+**What you need:**
+- `react-mxw01-printer` - The library
+- `react` (18.0.0+) - Required for the React hook
+
+Then import:
+```typescript
+import { useThermalPrinter } from "react-mxw01-printer/react";
+```
+
+---
+
+### 🖥️ For Node.js / Bun (Server-Side)
+
+Install the library with Bluetooth support:
+
+```bash
+npm install react-mxw01-printer @stoprocent/noble canvas
+```
+
+Or with Bun:
+```bash
+bun add react-mxw01-printer @stoprocent/noble canvas
+```
+
+**What you need:**
+- `react-mxw01-printer` - The library
+- `@stoprocent/noble` - Bluetooth access for Node.js/Bun
+- `canvas` - Image generation (for creating printable content)
+
+Then import:
+```typescript
+import { ThermalPrinterClient, NodeBluetoothAdapter } from "react-mxw01-printer";
+```
+
+---
+
+### 🌐 For Browser (Without React)
+
+If you want to use the core library in the browser without React:
+
 ```bash
 npm install react-mxw01-printer
 ```
 
-For React applications, you'll also need React 18+:
-```bash
-npm install react
-```
-
-For Bun:
-```bash
-bun add react-mxw01-printer
+Then import:
+```typescript
+import { ThermalPrinterClient, WebBluetoothAdapter } from "react-mxw01-printer";
 ```
 
 ### ⚠️ Breaking Change in v0.3.0
@@ -328,8 +373,8 @@ const {
 
 #### Core Client (Advanced)
 
-For more control, use the platform-agnostic client directly:
-
+For more control or not React usage, use the platform-agnostic client directly:
+Work only for web. For node/bun see [🖥️ Node.js / Bun / Server-Side](#-nodejs--bun--server-side).
 ```typescript
 import { ThermalPrinterClient, WebBluetoothAdapter } from "react-mxw01-printer";
 
@@ -371,19 +416,9 @@ await printer.disconnect();
 
 ### 🖥️ Node.js / Bun / Server-Side
 
-#### Installation
-
-```bash
-npm install react-mxw01-printer @stoprocent/noble canvas
-# or
-bun add react-mxw01-printer @stoprocent/noble canvas
-```
-
-**Required dependencies:**
-- `@stoprocent/noble` - Native Bluetooth access
-- `canvas` - Image generation
-
 #### Basic Usage
+
+Note: you can replace the canvas lib by any libraries you like, like fabric js.
 
 ```typescript
 import {
@@ -446,8 +481,6 @@ See `examples/nodejs-example.ts` for a fully working example.
 
 - ✅ **Node.js** - Full support
 - ✅ **Bun** - Full support (same code as Node.js)
-- ✅ **OpenTUI** - Works in terminal applications
-- ⚠️ **Windows** - May require additional Bluetooth setup
 
 ---
 

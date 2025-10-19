@@ -20,7 +20,12 @@ export abstract class DitherAlgorithm {
  * Simple threshold dithering
  */
 export class ThresholdDither extends DitherAlgorithm {
-  apply(mono: Uint8ClampedArray): Uint8ClampedArray {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  apply(
+    mono: Uint8ClampedArray,
+    _width: number,
+    _height: number
+  ): Uint8ClampedArray {
     for (let i = 0; i < mono.length; ++i) {
       mono[i] = mono[i] > 0x80 ? 0xff : 0x00;
     }
@@ -60,7 +65,7 @@ export class SteinbergDither extends DitherAlgorithm {
           }
           mono[p + width] += (error * 5) / 16;
           if (i < width - 1) {
-            mono[p + width + 1] += (error * 1) / 16;
+            mono[p + width + 1] += (error) / 16;
           }
         }
         ++p;

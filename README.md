@@ -18,10 +18,31 @@ Platform-agnostic library for MXW01 thermal printer with React hooks and Node.js
 npm install react-mxw01-printer
 ```
 
+For React applications, you'll also need React 18+:
+```bash
+npm install react
+```
+
 For Bun:
 ```bash
 bun add react-mxw01-printer
 ```
+
+### ⚠️ Breaking Change in v0.3.0
+
+**React imports have changed!** The React hook is now available via a separate export path to allow Node.js/Bun users to use the library without installing React.
+
+**Old (v0.2.x):**
+```typescript
+import { useThermalPrinter } from "react-mxw01-printer";
+```
+
+**New (v0.3.0+):**
+```typescript
+import { useThermalPrinter } from "react-mxw01-printer/react";
+```
+
+This change allows the core library to work in Node.js, Bun, and other environments without requiring React as a dependency.
 
 ---
 
@@ -32,7 +53,7 @@ bun add react-mxw01-printer
 The easiest way to get started with React:
 
 ```tsx
-import { useThermalPrinter } from "react-mxw01-printer";
+import { useThermalPrinter } from "react-mxw01-printer/react";
 import { useRef, useEffect } from "react";
 
 function PrinterApp() {
@@ -127,7 +148,7 @@ npm install react-mxw01-printer fabric
 ```
 
 ```tsx
-import { useThermalPrinter } from "react-mxw01-printer";
+import { useThermalPrinter } from "react-mxw01-printer/react";
 import { useRef, useEffect, useState } from "react";
 import { Canvas as FabricCanvas } from "fabric";
 

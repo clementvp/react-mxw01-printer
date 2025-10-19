@@ -1,11 +1,6 @@
 // Main entry point for react-mxw01-printer library
-// Maintains backward compatibility while exposing new agnostic core
-
-// ============================================================================
-// REACT HOOK (Main export - backward compatible)
-// ============================================================================
-export { useThermalPrinter } from "./react/useThermalPrinter";
-export type { ThermalPrinterHook } from "./react/useThermalPrinter";
+// Platform-agnostic core - no React dependencies
+// For React hook, import from "react-mxw01-printer/react"
 
 // ============================================================================
 // CORE (Platform-agnostic client)

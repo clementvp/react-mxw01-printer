@@ -1,6 +1,6 @@
 {
   "name": "react-mxw01-printer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Platform-agnostic library for MXW01 thermal printer with React hooks and Node.js support",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -11,6 +11,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
+    },
+    "./react": {
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs",
+      "types": "./dist/react/index.d.ts"
     }
   },
   "files": [

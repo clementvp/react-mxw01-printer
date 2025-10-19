@@ -106,10 +106,11 @@ export class NodeBluetoothAdapter implements BluetoothAdapter {
   }
 
   /**
-   * Check if Bluetooth is available and powered on
+   * Check if Bluetooth is available (Noble is loaded)
+   * The powered on state is checked during requestDevice()
    */
   isAvailable(): boolean {
-    return this.noble && this.noble.state === "poweredOn";
+    return this.noble !== null;
   }
 
   /**

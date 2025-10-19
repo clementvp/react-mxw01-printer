@@ -1,7 +1,7 @@
 {
   "name": "react-mxw01-printer",
-  "version": "0.1.0",
-  "description": "React hooks and utilities for MXW01 thermal printer via Web Bluetooth API",
+  "version": "0.2.0",
+  "description": "Platform-agnostic library for MXW01 thermal printer with React hooks and Node.js support",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -31,9 +31,13 @@
     "bluetooth",
     "web-bluetooth",
     "printer",
-    "hooks"
+    "hooks",
+    "nodejs",
+    "bun",
+    "platform-agnostic",
+    "tui"
   ],
-  "author": "",
+  "author": "clement van peuter",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -41,6 +45,11 @@
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/react": "^19.1.16",

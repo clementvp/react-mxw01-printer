@@ -93,6 +93,41 @@ export declare class MXW01Printer {
     waitForPrintComplete(timeoutMs?: number): Promise<void>;
 }
 
+/**
+ * Node.js Bluetooth adapter using Noble
+ * Provides native Bluetooth access for Node.js and Bun environments
+ *
+ * @example
+ * ```typescript
+ * import { ThermalPrinterClient } from 'react-mxw01-printer';
+ * import { NodeBluetoothAdapter } from 'react-mxw01-printer/adapters/node';
+ *
+ * const adapter = new NodeBluetoothAdapter();
+ * const printer = new ThermalPrinterClient(adapter);
+ * ```
+ *
+ * @requires @abandonware/noble
+ */
+export declare class NodeBluetoothAdapter implements BluetoothAdapter {
+    private noble;
+    private peripheral;
+    private characteristics;
+    constructor();
+    /**
+     * Check if Bluetooth is available and powered on
+     */
+    isAvailable(): boolean;
+    /**
+     * Scan for and request a Bluetooth printer device
+     * Automatically finds devices with MXW01 printer service UUID
+     */
+    requestDevice(): Promise<BluetoothDevice_2>;
+    /**
+     * Connect to a Bluetooth device and get printer service characteristics
+     */
+    connect(device: BluetoothDevice_2): Promise<BluetoothConnection & BluetoothServiceInfo>;
+}
+
 export declare function prepareImageDataBuffer(imageRowsBool: boolean[][]): Uint8Array;
 
 export declare const PRINTER_WIDTH = 384;

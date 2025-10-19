@@ -31,6 +31,7 @@ export type {
 // ADAPTERS
 // ============================================================================
 export { WebBluetoothAdapter } from "./adapters/WebBluetoothAdapter";
+export { NodeBluetoothAdapter } from "./adapters/NodeBluetoothAdapter";
 
 // ============================================================================
 // SERVICES (Existing exports - backward compatible)

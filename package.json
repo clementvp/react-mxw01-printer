@@ -1,6 +1,6 @@
 {
   "name": "react-mxw01-printer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React hooks and utilities for MXW01 thermal printer via Web Bluetooth API",
   "type": "module",
   "main": "./dist/index.cjs",

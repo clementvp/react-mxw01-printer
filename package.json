@@ -33,11 +33,11 @@
     "printer",
     "hooks"
   ],
-  "author": "",
+  "author": "clément van peuter",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/clementvp/react-mxw01-printer"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

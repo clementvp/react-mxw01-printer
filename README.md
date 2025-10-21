@@ -31,9 +31,9 @@ npm install @stoprocent/noble
 npm install canvas
 ```
 
-**For React applications:**
+**For Node.js/Bun (Fabric):**
 ```bash
-npm install react
+npm install fabric
 ```
 
 ## Quick Start
@@ -106,16 +106,57 @@ See [`examples/react-hook.tsx`](examples/react-hook.tsx) for a complete React ho
 
 ```tsx
 import { useThermalPrinter } from './examples/react-hook';
+import { useRef, useEffect } from 'react';
 
 function App() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { isConnected, connectPrinter, printCanvas } = useThermalPrinter();
+  
+  // Draw on canvas when component mounts
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // White background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, 384, 200);
+    
+    // Black text
+    ctx.fillStyle = 'black';
+    ctx.font = '30px Arial';
+    ctx.fillText('Hello from React!', 20, 100);
+    
+    // Draw a rectangle
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, 364, 180);
+  }, []);
+  
+  const handlePrint = async () => {
+    if (canvasRef.current) {
+      await printCanvas(canvasRef.current);
+    }
+  };
   
   return (
     <div>
-      <button onClick={connectPrinter}>Connect</button>
-      <button onClick={() => printCanvas(myCanvas)} disabled={!isConnected}>
-        Print
-      </button>
+      <canvas 
+        ref={canvasRef} 
+        width={384} 
+        height={200}
+        style={{ border: '1px solid #ccc' }}
+      />
+      <div>
+        <button onClick={connectPrinter} disabled={isConnected}>
+          Connect
+        </button>
+        <button onClick={handlePrint} disabled={!isConnected}>
+          Print
+        </button>
+      </div>
     </div>
   );
 }
@@ -126,20 +167,60 @@ function App() {
 See [`examples/vue-composable.ts`](examples/vue-composable.ts) for a complete Vue composable implementation.
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { useThermalPrinter } from './examples/vue-composable';
+import { ref, onMounted } from 'vue';
 
+const canvasRef = ref<HTMLCanvasElement | null>(null);
 const { isConnected, connectPrinter, printCanvas } = useThermalPrinter();
 
+// Draw on canvas when component mounts
+onMounted(() => {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  
+  // White background
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, 384, 200);
+  
+  // Black text
+  ctx.fillStyle = 'black';
+  ctx.font = '30px Arial';
+  ctx.fillText('Hello from Vue!', 20, 100);
+  
+  // Draw a rectangle
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, 10, 364, 180);
+});
+
 const handlePrint = async () => {
-  const canvas = document.getElementById('myCanvas');
-  await printCanvas(canvas);
+  if (canvasRef.value) {
+    await printCanvas(canvasRef.value);
+  }
 };
 </script>
 
 <template>
-  <button @click="connectPrinter">Connect</button>
-  <button @click="handlePrint" :disabled="!isConnected">Print</button>
+  <div>
+    <canvas 
+      ref="canvasRef" 
+      width="384" 
+      height="200"
+      style="border: 1px solid #ccc;"
+    />
+    <div>
+      <button @click="connectPrinter" :disabled="isConnected">
+        Connect
+      </button>
+      <button @click="handlePrint" :disabled="!isConnected">
+        Print
+      </button>
+    </div>
+  </div>
 </template>
 ```
 
@@ -253,11 +334,14 @@ interface PrintOptions {
 
 Complete working examples are provided in the `examples/` directory:
 
-- **[`nodejs-example.ts`](examples/nodejs-example.ts)** - Node.js/Bun implementation
+- **[`nodejs-canvas-example.ts`](examples/nodejs-canvas-example.ts)** - Basic Node.js/Bun implementation
+- **[`nodejs-fabric-example.ts`](examples/nodejs-fabric-example.ts)** - Node.js/Bun with Fabric.js for advanced graphics
 - **[`react-hook.tsx`](examples/react-hook.tsx)** - React hook implementation
 - **[`vue-composable.ts`](examples/vue-composable.ts)** - Vue 3 composable implementation
 
 These examples show how to integrate the core library with different frameworks. You can copy and adapt them to your project.
+
+
 
 ## Platform Support
 
@@ -266,8 +350,6 @@ These examples show how to integrate the core library with different frameworks.
 | Browser      | ✅      | WebBluetoothAdapter      | Requires Web Bluetooth API         |
 | Node.js      | ✅      | NodeBluetoothAdapter     | Requires @stoprocent/noble         |
 | Bun          | ✅      | NodeBluetoothAdapter     | Same as Node.js                    |
-| Deno         | ⚠️      | Custom adapter needed    | Experimental                       |
-| React Native | ⚠️      | Custom adapter needed    | Requires Bluetooth library         |
 
 ### Browser Compatibility
 

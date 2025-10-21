@@ -7,9 +7,9 @@
  *   bun add react-mxw01-printer @stoprocent/noble canvas
  *
  * Run:
- *   node --loader ts-node/esm examples/nodejs-example.ts
+ *   node --loader ts-node/esm examples/nodejs-canvas-example.ts
  *   or
- *   bun run examples/nodejs-example.ts
+ *   bun run examples/nodejs-canvas-example.ts
  */
 
 import {

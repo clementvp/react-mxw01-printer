@@ -11,7 +11,7 @@ Framework-agnostic library for MXW01 thermal printer with support for browsers, 
 - 🔌 **Extensible adapters** - Web Bluetooth, Noble (Node.js), custom adapters
 - 🔄 **Event-driven** - Subscribe to printer events
 - 📘 **Full TypeScript** - Complete type safety
-- 📚 **Examples included** - React, Vue implementations provided
+- 📚 **Examples included** - React, Vue, Node/Bun implementations provided
 
 ## Installation
 

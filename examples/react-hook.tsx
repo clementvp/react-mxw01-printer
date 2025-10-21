@@ -1,9 +1,38 @@
-// React hook for thermal printer - optimized with useReducer
+/**
+ * Example: React Hook for MXW01 Thermal Printer
+ * 
+ * This is a reference implementation showing how to integrate
+ * the mxw01-thermal-printer core library with React.
+ * 
+ * Usage:
+ * ```tsx
+ * import { useThermalPrinter } from './react-hook';
+ * 
+ * function PrinterComponent() {
+ *   const {
+ *     isConnected,
+ *     isPrinting,
+ *     connectPrinter,
+ *     printCanvas
+ *   } = useThermalPrinter();
+ * 
+ *   return (
+ *     <div>
+ *       <button onClick={connectPrinter}>Connect</button>
+ *       {isConnected && <button onClick={() => printCanvas(myCanvas)}>Print</button>}
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 
 import { useEffect, useRef, useCallback, useReducer } from "react";
-import { ThermalPrinterClient } from "../core/ThermalPrinterClient";
-import { WebBluetoothAdapter } from "../adapters/WebBluetoothAdapter";
-import type { PrinterState, DitherMethod } from "../core/types";
+import { 
+  ThermalPrinterClient,
+  WebBluetoothAdapter,
+  type PrinterState,
+  type DitherMethod
+} from "mxw01-thermal-printer";
 
 /**
  * Hook state interface

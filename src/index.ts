@@ -1,6 +1,5 @@
-// Main entry point for react-mxw01-printer library
-// Platform-agnostic core - no React dependencies
-// For React hook, import from "react-mxw01-printer/react"
+// Main entry point for mxw01-thermal-printer library
+// Platform-agnostic core library
 
 // ============================================================================
 // CORE (Platform-agnostic client)

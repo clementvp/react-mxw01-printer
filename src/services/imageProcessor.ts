@@ -55,10 +55,11 @@ export function processImageForPrinter(
   let finalWidth = width;
   let finalHeight = height;
 
-  if (options.rotate === 0 || options.rotate === 180) {
-    mono = rotate(mono, width, height, options.rotate);
-  } else {
-    mono = rotate(mono, height, width, options.rotate);
+  // Always pass input dimensions to rotate function
+  mono = rotate(mono, width, height, options.rotate);
+  
+  // For 90° and 270° rotations, dimensions are swapped in the output
+  if (options.rotate === 90 || options.rotate === 270) {
     finalWidth = height;
     finalHeight = width;
   }

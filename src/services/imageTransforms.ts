@@ -2,6 +2,11 @@
 
 /**
  * Rotate an image by 0, 90, 180, or 270 degrees
+ * @param data Input image data
+ * @param width Input image width
+ * @param height Input image height
+ * @param angle Rotation angle (0, 90, 180, or 270 degrees)
+ * @returns Rotated image data (dimensions may be swapped for 90/270)
  */
 export function rotate(
   data: Uint8ClampedArray,
@@ -17,23 +22,29 @@ export function rotate(
 
   switch (angle) {
     case 90:
-      for (let j = 0; j < height; j++) {
-        for (let i = 0; i < width; i++) {
-          result[j * width + i] = data[(width - i - 1) * height + j];
+      // Output dimensions are swapped: height × width
+      for (let y = 0; y < width; y++) {
+        for (let x = 0; x < height; x++) {
+          // Map (x, y) in output to (y, height - 1 - x) in input
+          result[y * height + x] = data[(height - 1 - x) * width + y];
         }
       }
       break;
     case 180:
-      for (let j = 0; j < height; j++) {
-        for (let i = 0; i < width; i++) {
-          result[j * width + i] = data[(height - j - 1) * width + (width - i - 1)];
+      // Output dimensions remain the same: width × height
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          // Map (x, y) in output to (width - x - 1, height - y - 1) in input
+          result[y * width + x] = data[(height - y - 1) * width + (width - x - 1)];
         }
       }
       break;
     case 270:
-      for (let j = 0; j < height; j++) {
-        for (let i = 0; i < width; i++) {
-          result[j * width + i] = data[i * height + (height - j - 1)];
+      // Output dimensions are swapped: height × width
+      for (let y = 0; y < width; y++) {
+        for (let x = 0; x < height; x++) {
+          // Map (x, y) in output to (width - 1 - y, x) in input
+          result[y * height + x] = data[x * width + (width - 1 - y)];
         }
       }
       break;

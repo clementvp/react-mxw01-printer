@@ -64,6 +64,56 @@ describe('services/imageTransforms', () => {
         3, 2, 1
       ]));
     });
+
+    it('should handle rectangular (non-square) 180 degree rotation', () => {
+      // Test case similar to the bug: 4x2 image (width=4, height=2)
+      const data = new Uint8ClampedArray([
+        1, 2, 3, 4,
+        5, 6, 7, 8
+      ]);
+      const result = rotate(data, 4, 2, 180);
+      
+      // After 180° rotation, dimensions stay 4x2 but flipped
+      expect(result.length).toBe(8);
+      expect(result).toEqual(new Uint8ClampedArray([
+        8, 7, 6, 5,
+        4, 3, 2, 1
+      ]));
+    });
+
+    it('should handle rectangular 90 degree rotation with dimension swap', () => {
+      // 3x2 image (width=3, height=2)
+      const data = new Uint8ClampedArray([
+        1, 2, 3,
+        4, 5, 6
+      ]);
+      const result = rotate(data, 3, 2, 90);
+      
+      // After 90° rotation, dimensions become 2x3 (height x width)
+      expect(result.length).toBe(6);
+      expect(result).toEqual(new Uint8ClampedArray([
+        4, 1,
+        5, 2,
+        6, 3
+      ]));
+    });
+
+    it('should handle rectangular 270 degree rotation with dimension swap', () => {
+      // 3x2 image (width=3, height=2)
+      const data = new Uint8ClampedArray([
+        1, 2, 3,
+        4, 5, 6
+      ]);
+      const result = rotate(data, 3, 2, 270);
+      
+      // After 270° rotation, dimensions become 2x3 (height x width)
+      expect(result.length).toBe(6);
+      expect(result).toEqual(new Uint8ClampedArray([
+        3, 6,
+        2, 5,
+        1, 4
+      ]));
+    });
   });
 
   describe('flip', () => {

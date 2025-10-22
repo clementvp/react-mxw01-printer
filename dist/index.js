@@ -1,4 +1,4 @@
-const I = [
+const A = [
   0,
   7,
   14,
@@ -256,10 +256,10 @@ const I = [
   244,
   243
 ];
-function D(a) {
+function I(a) {
   let t = 0;
   for (const e of a)
-    t = I[(t ^ e) & 255];
+    t = A[(t ^ e) & 255];
   return t & 255;
 }
 function E(a) {
@@ -286,16 +286,16 @@ function v(a, t) {
     e >> 8 & 255
   ]), i = new Uint8Array(r.length + t.length);
   i.set(r), i.set(t, r.length);
-  const n = D(t), s = new Uint8Array(i.length + 2);
+  const n = I(t), s = new Uint8Array(i.length + 2);
   return s.set(i), s[s.length - 2] = n, s[s.length - 1] = g.TERMINATOR, s;
 }
-function N(a) {
+function D(a) {
   if (a[0] !== g.HEADER_BYTE_1 || a[1] !== g.HEADER_BYTE_2)
     return null;
   const t = a[2], e = a[4] | a[5] << 8, r = a.slice(6, 6 + e);
   return { cmdId: t, payload: r };
 }
-function M(a) {
+function N(a) {
   if (a.length < 7)
     return null;
   const t = a[6];
@@ -308,7 +308,7 @@ function M(a) {
     overheat: (t & 32) !== 0
   };
 }
-function L() {
+function M() {
   return {
     printing: !1,
     paper_jam: !1,
@@ -318,12 +318,12 @@ function L() {
     overheat: !1
   };
 }
-class O {
+class L {
   state;
   printComplete = !1;
   pendingResolvers = /* @__PURE__ */ new Map();
   constructor() {
-    this.state = L();
+    this.state = M();
   }
   /**
    * Get current printer state
@@ -350,7 +350,7 @@ class O {
    */
   processNotification(t, e) {
     if (t === d.PrintComplete && (this.printComplete = !0), t === d.GetStatus) {
-      const i = M(e);
+      const i = N(e);
       i && (this.state = i);
     }
     const r = this.pendingResolvers.get(t);
@@ -376,12 +376,12 @@ class O {
   }
 }
 const y = 384, b = y / 8, S = 90 * b;
-class x {
+class O {
   controlWrite;
   dataWrite;
   stateManager;
   constructor(t, e) {
-    this.controlWrite = t, this.dataWrite = e, this.stateManager = new O();
+    this.controlWrite = t, this.dataWrite = e, this.stateManager = new L();
   }
   /**
    * Get current printer state
@@ -393,7 +393,7 @@ class x {
    * Process incoming notification from printer
    */
   notify(t) {
-    const e = N(t);
+    const e = D(t);
     if (!e) {
       console.warn("Ignoring unexpected notification format");
       return;
@@ -452,7 +452,7 @@ class x {
       throw new Error("Print timeout: Did not receive completion notification");
   }
 }
-function B(a) {
+function x(a) {
   if (a.length !== y)
     throw new Error(
       `Row length must be ${y}, got ${a.length}`
@@ -466,11 +466,11 @@ function B(a) {
   }
   return t;
 }
-function U(a) {
+function B(a) {
   const t = a.length;
   let e = new Uint8Array(0);
   for (let r = 0; r < t; r++) {
-    const i = B(a[r]), n = new Uint8Array(e.length + i.length);
+    const i = x(a[r]), n = new Uint8Array(e.length + i.length);
     n.set(e), n.set(i, e.length), e = n;
   }
   if (e.length < S) {
@@ -479,7 +479,7 @@ function U(a) {
   }
   return e;
 }
-class W {
+class U {
   listeners = /* @__PURE__ */ new Map();
   /**
    * Subscribe to an event
@@ -521,7 +521,7 @@ class W {
     this.listeners.delete(t);
   }
 }
-class F {
+class W {
   _isConnected = !1;
   _isPrinting = !1;
   _printerState = null;
@@ -577,7 +577,7 @@ class F {
 }
 class w {
 }
-class V extends w {
+class F extends w {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   apply(t, e, r) {
     for (let i = 0; i < t.length; ++i)
@@ -588,7 +588,7 @@ class V extends w {
     return "threshold";
   }
 }
-class q extends w {
+class V extends w {
   apply(t, e, r) {
     let i = 0;
     for (let n = 0; n < r; ++n)
@@ -602,7 +602,7 @@ class q extends w {
     return "steinberg";
   }
 }
-class j extends w {
+class q extends w {
   bayer8 = [
     0,
     48,
@@ -723,30 +723,30 @@ class Y extends w {
     return "pattern";
   }
 }
-function k(a) {
+function j(a) {
   switch (a) {
     case "steinberg":
-      return new q();
+      return new V();
     case "bayer":
-      return new j();
+      return new q();
     case "atkinson":
       return new H();
     case "pattern":
       return new Y();
     case "threshold":
     default:
-      return new V();
+      return new F();
   }
 }
-function _(a, t, e, r) {
+function k(a, t, e, r) {
   if (r === 0)
     return a;
   const i = new Uint8ClampedArray(a.length);
   switch (r) {
     case 90:
-      for (let n = 0; n < e; n++)
-        for (let s = 0; s < t; s++)
-          i[n * t + s] = a[(t - s - 1) * e + n];
+      for (let n = 0; n < t; n++)
+        for (let s = 0; s < e; s++)
+          i[n * e + s] = a[(e - 1 - s) * t + n];
       break;
     case 180:
       for (let n = 0; n < e; n++)
@@ -754,9 +754,9 @@ function _(a, t, e, r) {
           i[n * t + s] = a[(e - n - 1) * t + (t - s - 1)];
       break;
     case 270:
-      for (let n = 0; n < e; n++)
-        for (let s = 0; s < t; s++)
-          i[n * t + s] = a[s * e + (e - n - 1)];
+      for (let n = 0; n < t; n++)
+        for (let s = 0; s < e; s++)
+          i[n * e + s] = a[s * t + (t - 1 - n)];
       break;
   }
   return i;
@@ -826,15 +826,15 @@ function z(a, t) {
     new Uint8ClampedArray(a.data).buffer
   ), r = a.width, i = a.height;
   let n = G(e, t.brightness, !0);
-  n = k(t.dither).apply(n, r, i), n = $(n, r, i, t.flip);
+  n = j(t.dither).apply(n, r, i), n = $(n, r, i, t.flip);
   let o = r, c = i;
-  t.rotate === 0 || t.rotate === 180 ? n = _(n, r, i, t.rotate) : (n = _(n, i, r, t.rotate), o = i, c = r);
+  n = k(n, r, i, t.rotate), (t.rotate === 90 || t.rotate === 270) && (o = i, c = r);
   const h = X(n, !0), u = [];
   for (let l = 0; l < c; l++) {
     const p = [];
     for (let m = 0; m < o; m++) {
-      const T = l * o + m, A = n[T];
-      p.push(A < 128);
+      const P = l * o + m, T = n[P];
+      p.push(T < 128);
     }
     u.push(p);
   }
@@ -871,7 +871,7 @@ class K {
       n
     );
     return {
-      imageBuffer: U(s),
+      imageBuffer: B(s),
       numLines: s.length
     };
   }
@@ -894,7 +894,7 @@ class Q {
   constructor(t) {
     if (!t.isAvailable())
       throw new Error("Bluetooth is not available in this environment");
-    this.adapter = t, this.eventEmitter = new W(), this.state = new F();
+    this.adapter = t, this.eventEmitter = new U(), this.state = new W();
   }
   // Public getters delegated to state
   get isConnected() {
@@ -939,7 +939,7 @@ class Q {
    */
   async connect() {
     try {
-      this.updateStatus("Connecting to printer..."), this.device = await this.adapter.requestDevice(), this.connection = await this.adapter.connect(this.device), this.printer = new x(
+      this.updateStatus("Connecting to printer..."), this.device = await this.adapter.requestDevice(), this.connection = await this.adapter.connect(this.device), this.printer = new O(
         this.connection.controlCharacteristic.writeValueWithoutResponse.bind(
           this.connection.controlCharacteristic
         ),
@@ -1048,7 +1048,7 @@ const f = {
   NOTIFY_SHORT: "ae02",
   DATA_SHORT: "ae03"
 };
-class P {
+class _ {
   dataListeners = /* @__PURE__ */ new Map();
   /**
    * Clear all registered listeners
@@ -1057,7 +1057,7 @@ class P {
     this.dataListeners.clear();
   }
 }
-class C extends P {
+class C extends _ {
   constructor(t) {
     super(), this.characteristic = t;
   }
@@ -1157,7 +1157,7 @@ class Z {
     }
   }
 }
-class R extends P {
+class R extends _ {
   characteristic;
   constructor(t) {
     super(), this.characteristic = t;
@@ -1300,14 +1300,14 @@ class tt {
 export {
   d as Command,
   S as MIN_DATA_BYTES,
-  x as MXW01Printer,
+  O as MXW01Printer,
   tt as NodeBluetoothAdapter,
   y as PRINTER_WIDTH,
   b as PRINTER_WIDTH_BYTES,
   Q as ThermalPrinterClient,
   Z as WebBluetoothAdapter,
-  B as encode1bppRow,
-  U as prepareImageDataBuffer,
+  x as encode1bppRow,
+  B as prepareImageDataBuffer,
   z as processImageForPrinter
 };
 //# sourceMappingURL=index.js.map

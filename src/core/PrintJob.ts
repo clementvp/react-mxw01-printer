@@ -42,8 +42,8 @@ export class PrintJob {
     const processingOptions: ImageProcessorOptions = {
       dither: this.options.dither ?? defaultDither,
       brightness: this.options.brightness ?? 128,
-      flip: "none",
-      rotate: 180, // Required rotation for MXW01 printer
+      flip: this.options.flip ?? "none",
+      rotate: this.options.rotate ?? 0,
     };
 
     // Process image for printing

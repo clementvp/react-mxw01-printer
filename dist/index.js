@@ -864,9 +864,8 @@ class K {
     ), n = {
       dither: this.options.dither ?? t,
       brightness: this.options.brightness ?? 128,
-      flip: "none",
-      rotate: 180
-      // Required rotation for MXW01 printer
+      flip: this.options.flip ?? "none",
+      rotate: this.options.rotate ?? 0
     }, { binaryRows: s } = z(
       i,
       n

@@ -271,15 +271,15 @@ const d = {
   PrintRequest: 169,
   FlushData: 173,
   PrintComplete: 170
-}, g = {
+}, y = {
   HEADER_BYTE_1: 34,
   HEADER_BYTE_2: 33,
   TERMINATOR: 255
 };
 function v(a, t) {
   const e = t.length, r = new Uint8Array([
-    g.HEADER_BYTE_1,
-    g.HEADER_BYTE_2,
+    y.HEADER_BYTE_1,
+    y.HEADER_BYTE_2,
     a,
     0,
     e & 255,
@@ -287,10 +287,10 @@ function v(a, t) {
   ]), i = new Uint8Array(r.length + t.length);
   i.set(r), i.set(t, r.length);
   const n = I(t), s = new Uint8Array(i.length + 2);
-  return s.set(i), s[s.length - 2] = n, s[s.length - 1] = g.TERMINATOR, s;
+  return s.set(i), s[s.length - 2] = n, s[s.length - 1] = y.TERMINATOR, s;
 }
 function D(a) {
-  if (a[0] !== g.HEADER_BYTE_1 || a[1] !== g.HEADER_BYTE_2)
+  if (a[0] !== y.HEADER_BYTE_1 || a[1] !== y.HEADER_BYTE_2)
     return null;
   const t = a[2], e = a[4] | a[5] << 8, r = a.slice(6, 6 + e);
   return { cmdId: t, payload: r };
@@ -375,7 +375,7 @@ class L {
     });
   }
 }
-const y = 384, b = y / 8, S = 90 * b;
+const g = 384, b = g / 8, S = 90 * b;
 class O {
   controlWrite;
   dataWrite;
@@ -453,9 +453,9 @@ class O {
   }
 }
 function x(a) {
-  if (a.length !== y)
+  if (a.length !== g)
     throw new Error(
-      `Row length must be ${y}, got ${a.length}`
+      `Row length must be ${g}, got ${a.length}`
     );
   const t = new Uint8Array(b);
   for (let e = 0; e < b; e++) {
@@ -593,8 +593,8 @@ class V extends w {
     let i = 0;
     for (let n = 0; n < r; ++n)
       for (let s = 0; s < e; ++s) {
-        const o = t[i], c = o > 128 ? 255 : 0, h = o - c;
-        t[i] = c, s < e - 1 && (t[i + 1] += h * 7 / 16), n < r - 1 && (s > 0 && (t[i + e - 1] += h * 3 / 16), t[i + e] += h * 5 / 16, s < e - 1 && (t[i + e + 1] += h / 16)), ++i;
+        const c = t[i], o = c > 128 ? 255 : 0, h = c - o;
+        t[i] = o, s < e - 1 && (t[i + 1] += h * 7 / 16), n < r - 1 && (s > 0 && (t[i + e - 1] += h * 3 / 16), t[i + e] += h * 5 / 16, s < e - 1 && (t[i + e + 1] += h / 16)), ++i;
       }
     return t;
   }
@@ -674,9 +674,9 @@ class q extends w {
     let i = 0;
     for (let n = 0; n < r; ++n)
       for (let s = 0; s < e; ++s) {
-        const o = this.bayer8[n % 8 * 8 + s % 8];
-        let c = t[i];
-        c = c + (o - 32) * this.ditherFactor, c = Math.max(0, Math.min(255, c)), t[i] = c > 128 ? 255 : 0, ++i;
+        const c = this.bayer8[n % 8 * 8 + s % 8];
+        let o = t[i];
+        o = o + (c - 32) * this.ditherFactor, o = Math.max(0, Math.min(255, o)), t[i] = o > 128 ? 255 : 0, ++i;
       }
     return t;
   }
@@ -684,13 +684,13 @@ class q extends w {
     return "bayer";
   }
 }
-class H extends w {
+class Y extends w {
   apply(t, e, r) {
     let i = 0;
     for (let n = 0; n < r; ++n)
       for (let s = 0; s < e; ++s) {
-        const o = t[i], c = o > 128 ? 255 : 0, h = o - c >> 3;
-        t[i] = c, s < e - 1 && (t[i + 1] += h), s < e - 2 && (t[i + 2] += h), n < r - 1 && (s > 0 && (t[i + e - 1] += h), t[i + e] += h, s < e - 1 && (t[i + e + 1] += h)), n < r - 2 && (t[i + 2 * e] += h), ++i;
+        const c = t[i], o = c > 128 ? 255 : 0, h = c - o >> 3;
+        t[i] = o, s < e - 1 && (t[i + 1] += h), s < e - 2 && (t[i + 2] += h), n < r - 1 && (s > 0 && (t[i + e - 1] += h), t[i + e] += h, s < e - 1 && (t[i + e + 1] += h)), n < r - 2 && (t[i + 2 * e] += h), ++i;
       }
     return t;
   }
@@ -698,25 +698,25 @@ class H extends w {
     return "atkinson";
   }
 }
-class Y extends w {
+class H extends w {
   apply(t, e, r) {
-    for (let o = 0; o < r - 4; o += 4) {
-      for (let c = 0; c < e - 4; c += 4) {
+    for (let c = 0; c < r - 4; c += 4) {
+      for (let o = 0; o < e - 4; o += 4) {
         let h = 0;
         for (let l = 0; l < 4; ++l)
           for (let p = 0; p < 4; ++p)
-            h += t[(o + p) * e + c + l];
+            h += t[(c + p) * e + o + l];
         const u = (1 - h / 16 / 255) * 4;
         for (let l = 0; l < 4; ++l)
           for (let p = 0; p < 4; ++p)
-            t[(o + p) * e + c + l] = Math.abs(l - 3) >= u || Math.abs(p - 3) >= u ? 255 : 0;
+            t[(c + p) * e + o + l] = Math.abs(l - 3) >= u || Math.abs(p - 3) >= u ? 255 : 0;
       }
-      for (let c = e - e % 4; c < e; ++c)
-        t[o * e + c] = 255;
+      for (let o = e - e % 4; o < e; ++o)
+        t[c * e + o] = 255;
     }
-    for (let o = r - r % 4; o < r; ++o)
-      for (let c = 0; c < e; ++c)
-        t[o * e + c] = 255;
+    for (let c = r - r % 4; c < r; ++c)
+      for (let o = 0; o < e; ++o)
+        t[c * e + o] = 255;
     return t;
   }
   getName() {
@@ -730,9 +730,9 @@ function j(a) {
     case "bayer":
       return new q();
     case "atkinson":
-      return new H();
-    case "pattern":
       return new Y();
+    case "pattern":
+      return new H();
     case "threshold":
     default:
       return new F();
@@ -744,19 +744,25 @@ function k(a, t, e, r) {
   const i = new Uint8ClampedArray(a.length);
   switch (r) {
     case 90:
-      for (let n = 0; n < t; n++)
-        for (let s = 0; s < e; s++)
-          i[n * e + s] = a[(e - 1 - s) * t + n];
+      for (let n = 0; n < e; n++)
+        for (let s = 0; s < t; s++) {
+          const c = e - 1 - n, o = s;
+          i[o * e + c] = a[n * t + s];
+        }
       break;
     case 180:
       for (let n = 0; n < e; n++)
-        for (let s = 0; s < t; s++)
-          i[n * t + s] = a[(e - n - 1) * t + (t - s - 1)];
+        for (let s = 0; s < t; s++) {
+          const c = t - 1 - s, o = e - 1 - n;
+          i[o * t + c] = a[n * t + s];
+        }
       break;
     case 270:
-      for (let n = 0; n < t; n++)
-        for (let s = 0; s < e; s++)
-          i[n * e + s] = a[s * t + (t - 1 - n)];
+      for (let n = 0; n < e; n++)
+        for (let s = 0; s < t; s++) {
+          const c = n, o = t - 1 - s;
+          i[o * e + c] = a[n * t + s];
+        }
       break;
   }
   return i;
@@ -788,14 +794,14 @@ function G(a, t = 128, e = !0) {
   const r = new Uint8ClampedArray(a.length);
   for (let i = 0; i < r.length; ++i) {
     const n = a[i];
-    let s = n & 255, o = n >> 8 & 255, c = n >> 16 & 255;
+    let s = n & 255, c = n >> 8 & 255, o = n >> 16 & 255;
     const h = (n >> 24 & 255) / 255;
     if (h < 1 && e) {
       const l = 1 - h;
-      s += (255 - s) * l, o += (255 - o) * l, c += (255 - c) * l;
+      s += (255 - s) * l, c += (255 - c) * l, o += (255 - o) * l;
     } else
-      s *= h, o *= h, c *= h;
-    let u = s * 0.2125 + o * 0.7154 + c * 0.0721;
+      s *= h, c *= h, o *= h;
+    let u = s * 0.2125 + c * 0.7154 + o * 0.0721;
     u += (t - 128) * (1 - u / 255) * (u / 255) * 2, r[i] = u;
   }
   return r;
@@ -811,8 +817,8 @@ function X(a, t = !1) {
 function J(a, t, e) {
   const r = new Uint8ClampedArray(t * e * 4), i = a.width / t, n = a.height / e;
   for (let s = 0; s < e; s++)
-    for (let o = 0; o < t; o++) {
-      const c = Math.floor(o * i), u = (Math.floor(s * n) * a.width + c) * 4, l = (s * t + o) * 4;
+    for (let c = 0; c < t; c++) {
+      const o = Math.floor(c * i), u = (Math.floor(s * n) * a.width + o) * 4, l = (s * t + c) * 4;
       r[l] = a.data[u], r[l + 1] = a.data[u + 1], r[l + 2] = a.data[u + 2], r[l + 3] = a.data[u + 3];
     }
   return {
@@ -827,21 +833,21 @@ function z(a, t) {
   ), r = a.width, i = a.height;
   let n = G(e, t.brightness, !0);
   n = j(t.dither).apply(n, r, i), n = $(n, r, i, t.flip);
-  let o = r, c = i;
-  n = k(n, r, i, t.rotate), (t.rotate === 90 || t.rotate === 270) && (o = i, c = r);
+  let c = r, o = i;
+  n = k(n, r, i, t.rotate), (t.rotate === 90 || t.rotate === 270) && (c = i, o = r);
   const h = X(n, !0), u = [];
-  for (let l = 0; l < c; l++) {
+  for (let l = 0; l < o; l++) {
     const p = [];
-    for (let m = 0; m < o; m++) {
-      const P = l * o + m, T = n[P];
+    for (let m = 0; m < c; m++) {
+      const P = l * c + m, T = n[P];
       p.push(T < 128);
     }
     u.push(p);
   }
   return {
     processedData: h,
-    width: o,
-    height: c,
+    width: c,
+    height: o,
     binaryRows: u
   };
 }
@@ -857,18 +863,27 @@ class K {
    * @returns Prepared image buffer and metadata
    */
   prepare(t) {
-    const e = y / this.imageData.width, r = Math.floor(this.imageData.height * e), i = J(
-      this.imageData,
-      y,
-      r
-    ), n = {
+    const e = {
       dither: this.options.dither ?? t,
       brightness: this.options.brightness ?? 128,
       flip: this.options.flip ?? "none",
       rotate: this.options.rotate ?? 0
-    }, { binaryRows: s } = z(
-      i,
-      n
+    };
+    let r, i;
+    if (e.rotate === 90 || e.rotate === 270) {
+      const o = g / this.imageData.height;
+      r = Math.floor(this.imageData.width * o), i = g;
+    } else {
+      const o = g / this.imageData.width;
+      r = g, i = Math.floor(this.imageData.height * o);
+    }
+    const n = J(
+      this.imageData,
+      r,
+      i
+    ), { binaryRows: s } = z(
+      n,
+      e
     );
     return {
       imageBuffer: B(s),
@@ -994,12 +1009,12 @@ class Q {
         this.state.ditherMethod
       ), s = r.getIntensity(this.state.printIntensity);
       this.updateStatus("Configuring printer..."), await this.printer.setIntensity(s);
-      const o = await this.printer.requestStatus();
-      if (o.length >= 13 && o[12] !== 0)
-        throw new Error(`Printer error: ${o[13]}`);
+      const c = await this.printer.requestStatus();
+      if (c.length >= 13 && c[12] !== 0)
+        throw new Error(`Printer error: ${c[13]}`);
       this.updateStatus("Sending data...");
-      const c = await this.printer.printRequest(n, 0);
-      if (!c || c[0] !== 0)
+      const o = await this.printer.printRequest(n, 0);
+      if (!o || o[0] !== 0)
         throw new Error("Print request rejected");
       await this.printer.sendDataChunks(i), await this.printer.flushData(), this.updateStatus("Printing..."), await this.printer.waitForPrintComplete(), this.updateStatus("Print completed"), await this.getStatus();
     } catch (r) {
@@ -1240,8 +1255,8 @@ class tt {
       if (this.noble.state === "poweredOn")
         n();
       else {
-        const s = (o) => {
-          o === "poweredOn" && (this.noble.removeListener("stateChange", s), n());
+        const s = (c) => {
+          c === "poweredOn" && (this.noble.removeListener("stateChange", s), n());
         };
         this.noble.on("stateChange", s);
       }
@@ -1302,7 +1317,7 @@ export {
   S as MIN_DATA_BYTES,
   O as MXW01Printer,
   tt as NodeBluetoothAdapter,
-  y as PRINTER_WIDTH,
+  g as PRINTER_WIDTH,
   b as PRINTER_WIDTH_BYTES,
   Q as ThermalPrinterClient,
   Z as WebBluetoothAdapter,

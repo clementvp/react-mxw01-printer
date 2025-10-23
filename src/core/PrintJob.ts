@@ -2,7 +2,7 @@
 
 import { PRINTER_WIDTH, prepareImageDataBuffer } from "../services/printer";
 import { processImageForPrinter } from "../services/imageProcessor";
-import { scaleImageData } from "../services/imageTransforms";
+import { cropImageData } from "../services/imageTransforms";
 import type { PrinterImageData, PrintOptions } from "./types";
 import type { ImageProcessorOptions } from "../services/imageProcessor";
 
@@ -35,34 +35,21 @@ export class PrintJob {
       rotate: this.options.rotate ?? 0,
     };
 
-    // Calculate scaling based on rotation
-    // For 90° and 270° rotations, height becomes width after rotation
-    // So we need to scale height to PRINTER_WIDTH instead of width
-    let targetWidth: number;
-    let targetHeight: number;
+    // If width <= PRINTER_WIDTH: no modification needed
+    // If width > PRINTER_WIDTH: crop to PRINTER_WIDTH
+    let processedImage = this.imageData;
     
-    if (processingOptions.rotate === 90 || processingOptions.rotate === 270) {
-      // After rotation, height becomes width, so scale height to printer width
-      const scale = PRINTER_WIDTH / this.imageData.height;
-      targetWidth = Math.floor(this.imageData.width * scale);
-      targetHeight = PRINTER_WIDTH;
-    } else {
-      // For 0° and 180°, scale width to printer width
-      const scale = PRINTER_WIDTH / this.imageData.width;
-      targetWidth = PRINTER_WIDTH;
-      targetHeight = Math.floor(this.imageData.height * scale);
+    if (this.imageData.width > PRINTER_WIDTH) {
+      processedImage = cropImageData(
+        this.imageData,
+        PRINTER_WIDTH,
+        this.imageData.height
+      ) as any;
     }
 
-    // Scale image to calculated dimensions
-    const scaledImage = scaleImageData(
-      this.imageData,
-      targetWidth,
-      targetHeight
-    );
-
-    // Process image for printing
+    // Process image for printing (rotation is applied here on the content)
     const { binaryRows } = processImageForPrinter(
-      scaledImage as any,
+      processedImage as any,
       processingOptions
     );
 

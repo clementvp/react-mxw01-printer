@@ -64,7 +64,7 @@ describe('core/PrintJob', () => {
       expect(result.numLines).toBeGreaterThan(0);
     });
 
-    it('should scale image to printer width (384px)', () => {
+    it('should keep images with width <= 384px unchanged', () => {
       // Create a 100x100 image
       const size = 100;
       const imageData = {
@@ -76,9 +76,8 @@ describe('core/PrintJob', () => {
       const job = new PrintJob(imageData);
       const result = job.prepare('threshold');
       
-      // Image should be scaled to 384 width
-      // Height should be scaled proportionally: 100 * (384/100) = 384
-      expect(result.numLines).toBe(384);
+      // Image should stay 100x100 (no scaling since width <= 384)
+      expect(result.numLines).toBe(100);
     });
 
     it('should use provided dither method from options', () => {
@@ -145,7 +144,7 @@ describe('core/PrintJob', () => {
       expect(result.imageBuffer.length).toBeGreaterThan(0);
     });
 
-    it('should handle large images', () => {
+    it('should crop images with width > 384px', () => {
       // 500x500 image
       const size = 500;
       const imageData = {
@@ -157,8 +156,9 @@ describe('core/PrintJob', () => {
       const job = new PrintJob(imageData);
       const result = job.prepare('threshold');
       
+      // Image should be cropped to 384x500 (width cropped, height unchanged)
       expect(result.imageBuffer).toBeInstanceOf(Uint8Array);
-      expect(result.numLines).toBeGreaterThan(0);
+      expect(result.numLines).toBe(500);
     });
 
     it('should apply 180° rotation for MXW01 printer', () => {

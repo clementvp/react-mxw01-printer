@@ -68,15 +68,25 @@ export function processImageForPrinter(
   const processedData = grayToRgba(mono, true);
 
   // Create binary rows array for printing
+  // Rows must always be 384 pixels wide (printer requirement)
+  const PRINTER_WIDTH = 384;
   const binaryRows: boolean[][] = [];
 
   for (let y = 0; y < finalHeight; y++) {
     const row: boolean[] = [];
+    
+    // Add actual image pixels
     for (let x = 0; x < finalWidth; x++) {
       const idx = y * finalWidth + x;
       const lum = mono[idx];
       row.push(lum < 128); // true = black (print), false = white
     }
+    
+    // Pad with white pixels to reach 384px width if needed
+    while (row.length < PRINTER_WIDTH) {
+      row.push(false); // false = white (no print)
+    }
+    
     binaryRows.push(row);
   }
 

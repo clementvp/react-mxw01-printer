@@ -161,6 +161,38 @@ export function grayToRgba(
 }
 
 /**
+ * Crop image data to target dimensions
+ * Takes pixels from top-left corner up to target width/height
+ */
+export function cropImageData(
+  source: { data: Uint8ClampedArray; width: number; height: number },
+  targetWidth: number,
+  targetHeight: number
+): { data: Uint8ClampedArray; width: number; height: number } {
+  const croppedWidth = Math.min(targetWidth, source.width);
+  const croppedHeight = Math.min(targetHeight, source.height);
+  const cropped = new Uint8ClampedArray(croppedWidth * croppedHeight * 4);
+
+  for (let y = 0; y < croppedHeight; y++) {
+    for (let x = 0; x < croppedWidth; x++) {
+      const srcIdx = (y * source.width + x) * 4;
+      const dstIdx = (y * croppedWidth + x) * 4;
+
+      cropped[dstIdx] = source.data[srcIdx];
+      cropped[dstIdx + 1] = source.data[srcIdx + 1];
+      cropped[dstIdx + 2] = source.data[srcIdx + 2];
+      cropped[dstIdx + 3] = source.data[srcIdx + 3];
+    }
+  }
+
+  return {
+    data: cropped,
+    width: croppedWidth,
+    height: croppedHeight,
+  };
+}
+
+/**
  * Scale image data to target dimensions using nearest-neighbor interpolation
  */
 export function scaleImageData(

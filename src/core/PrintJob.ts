@@ -27,17 +27,6 @@ export class PrintJob {
     imageBuffer: Uint8Array;
     numLines: number;
   } {
-    // Calculate scaling to fit printer width
-    const scale = PRINTER_WIDTH / this.imageData.width;
-    const scaledHeight = Math.floor(this.imageData.height * scale);
-
-    // Scale image to printer width
-    const scaledImage = scaleImageData(
-      this.imageData,
-      PRINTER_WIDTH,
-      scaledHeight
-    );
-
     // Default processing options
     const processingOptions: ImageProcessorOptions = {
       dither: this.options.dither ?? defaultDither,
@@ -45,6 +34,31 @@ export class PrintJob {
       flip: this.options.flip ?? "none",
       rotate: this.options.rotate ?? 0,
     };
+
+    // Calculate scaling based on rotation
+    // For 90° and 270° rotations, height becomes width after rotation
+    // So we need to scale height to PRINTER_WIDTH instead of width
+    let targetWidth: number;
+    let targetHeight: number;
+    
+    if (processingOptions.rotate === 90 || processingOptions.rotate === 270) {
+      // After rotation, height becomes width, so scale height to printer width
+      const scale = PRINTER_WIDTH / this.imageData.height;
+      targetWidth = Math.floor(this.imageData.width * scale);
+      targetHeight = PRINTER_WIDTH;
+    } else {
+      // For 0° and 180°, scale width to printer width
+      const scale = PRINTER_WIDTH / this.imageData.width;
+      targetWidth = PRINTER_WIDTH;
+      targetHeight = Math.floor(this.imageData.height * scale);
+    }
+
+    // Scale image to calculated dimensions
+    const scaledImage = scaleImageData(
+      this.imageData,
+      targetWidth,
+      targetHeight
+    );
 
     // Process image for printing
     const { binaryRows } = processImageForPrinter(

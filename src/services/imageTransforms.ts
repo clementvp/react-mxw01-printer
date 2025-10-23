@@ -22,29 +22,37 @@ export function rotate(
 
   switch (angle) {
     case 90:
-      // Output dimensions are swapped: height × width
-      for (let y = 0; y < width; y++) {
-        for (let x = 0; x < height; x++) {
-          // Map (x, y) in output to (y, height - 1 - x) in input
-          result[y * height + x] = data[(height - 1 - x) * width + y];
+      // Rotate 90° clockwise: output dimensions are swapped (height × width)
+      // Output width = input height, Output height = input width
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          // Map input (x, y) to output (height - 1 - y, x)
+          const outX = height - 1 - y;
+          const outY = x;
+          result[outY * height + outX] = data[y * width + x];
         }
       }
       break;
     case 180:
-      // Output dimensions remain the same: width × height
+      // Rotate 180°: output dimensions remain the same (width × height)
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-          // Map (x, y) in output to (width - x - 1, height - y - 1) in input
-          result[y * width + x] = data[(height - y - 1) * width + (width - x - 1)];
+          // Map input (x, y) to output (width - 1 - x, height - 1 - y)
+          const outX = width - 1 - x;
+          const outY = height - 1 - y;
+          result[outY * width + outX] = data[y * width + x];
         }
       }
       break;
     case 270:
-      // Output dimensions are swapped: height × width
-      for (let y = 0; y < width; y++) {
-        for (let x = 0; x < height; x++) {
-          // Map (x, y) in output to (width - 1 - y, x) in input
-          result[y * height + x] = data[x * width + (width - 1 - y)];
+      // Rotate 270° clockwise (or 90° counter-clockwise): output dimensions are swapped (height × width)
+      // Output width = input height, Output height = input width
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          // Map input (x, y) to output (y, width - 1 - x)
+          const outX = y;
+          const outY = width - 1 - x;
+          result[outY * height + outX] = data[y * width + x];
         }
       }
       break;

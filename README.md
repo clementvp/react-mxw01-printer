@@ -1,5 +1,17 @@
 # react-mxw01-printer
 
+> **⚠️ DEPRECATED - This repository is no longer maintained**
+> 
+> This React-specific package has been deprecated in favor of a framework-agnostic solution.
+> 
+> **Please migrate to:** [mxw01-thermal-printer](https://www.npmjs.com/package/mxw01-thermal-printer)
+> 
+> The new package is framework-agnostic and provides the same functionality with better flexibility and ongoing support.
+> 
+> 🚨 **This repository will not receive any further updates or bug fixes.**
+
+---
+
 React hooks and utilities for MXW01 thermal printer via Web Bluetooth API.
 
 ## Features
